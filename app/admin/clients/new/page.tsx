@@ -6,8 +6,6 @@ import { upsertClient } from "../../actions";
 import { useRouter } from "next/navigation";
 
 export default function NewClientPage() {
-  const router = useRouter();
-
   const fields = [
     { name: "name", label: "Client / Entity Name", type: "text" as const, required: true },
     { name: "logo", label: "Corporate Logo", type: "image" as const },
@@ -16,8 +14,6 @@ export default function NewClientPage() {
 
   const handleSubmit = async (data: any) => {
     await upsertClient(data);
-    router.push("/admin/clients");
-    router.refresh();
   };
 
   return (
@@ -38,3 +34,4 @@ export default function NewClientPage() {
     </div>
   );
 }
+

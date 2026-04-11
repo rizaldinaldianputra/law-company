@@ -122,7 +122,7 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#F9FAFB] p-10 lg:p-14">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-[#F3F4F6] p-10 lg:p-14">
           <div className="max-w-7xl mx-auto animate-in fade-in duration-700">
             {children}
           </div>

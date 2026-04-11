@@ -5,8 +5,6 @@ import { upsertClient } from "@/app/admin/actions";
 import { useRouter } from "next/navigation";
 
 export function EditClientForm({ initialData }: { initialData: any }) {
-  const router = useRouter();
-
   const fields = [
     { name: "name", label: "Client / Entity Name", type: "text" as const, required: true },
     { name: "logo", label: "Corporate Logo", type: "image" as const },
@@ -16,8 +14,6 @@ export function EditClientForm({ initialData }: { initialData: any }) {
   const handleSubmit = async (data: any) => {
     data.append('id', initialData.id);
     await upsertClient(data);
-    router.push("/admin/clients");
-    router.refresh();
   };
 
   return (
@@ -30,3 +26,4 @@ export function EditClientForm({ initialData }: { initialData: any }) {
     />
   );
 }
+

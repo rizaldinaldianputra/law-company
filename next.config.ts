@@ -2,16 +2,13 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ["pg"],
-  serverActions: {
-    bodySizeLimit: '20mb',
-  },
   images: {
     remotePatterns: [
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '9000',
-        pathname: '/lawfirm/**',
+        protocol: 'https',
+        hostname: 'ejcbhupncuwcmcqoqede.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/**',
       },
     ],
   },

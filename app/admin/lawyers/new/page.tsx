@@ -6,8 +6,6 @@ import { upsertLawyer } from "../../actions";
 import { useRouter } from "next/navigation";
 
 export default function NewLawyerPage() {
-  const router = useRouter();
-
   const fields = [
     { name: "name", label: "Full Name", type: "text" as const, required: true },
     { name: "title", label: "Professional Title", type: "text" as const, required: true, placeholder: "e.g. Senior Partner, Managing Director" },
@@ -18,14 +16,11 @@ export default function NewLawyerPage() {
     { name: "expertise", label: "Expertise (Keywords)", type: "text" as const, placeholder: "e.g. Corporate, M&A, Litigations" },
     { name: "languages", label: "Languages Spoken", type: "text" as const, placeholder: "e.g. English, Indonesian" },
     { name: "socialLinks", label: "Social Media (LinkedIn/Web)", type: "text" as const, placeholder: "LinkedIn Profile URL..." },
-    { name: "slug", label: "Custom URL Slug", type: "text" as const },
     { name: "bio", label: "Professional Biography", type: "textarea" as const, placeholder: "Detailed professional history..." },
   ];
 
   const handleSubmit = async (data: any) => {
     await upsertLawyer(data);
-    router.push("/admin/lawyers");
-    router.refresh();
   };
 
   return (
@@ -46,3 +41,4 @@ export default function NewLawyerPage() {
     </div>
   );
 }
+

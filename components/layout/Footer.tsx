@@ -18,8 +18,27 @@ export function Footer() {
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#2A0E0E] to-black flex items-center justify-center shadow-lg">
-                  <span className="text-yellow-500 font-bold text-xl font-serif">S</span>
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2A0E0E] to-[#0A0A0A] flex items-center justify-center 
+        shadow-lg shadow-black/40 overflow-hidden group-hover:scale-110 transition-all duration-500">
+
+                  {/* Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+
+                  {/* Icon Scale */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-7 h-7 text-yellow-500 group-hover:scale-110 transition duration-500"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 3v18m0-18l6 6m-6-6l-6 6M4 9h16M6 9l-2 6h4l-2-6zm12 0l-2 6h4l-2-6z"
+                    />
+                  </svg>
                 </div>
                 <div>
                   <div className="text-white font-semibold text-lg font-serif">Rizaldi & Associates</div>

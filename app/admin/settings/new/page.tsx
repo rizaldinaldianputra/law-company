@@ -6,8 +6,6 @@ import { upsertSetting } from "../../actions";
 import { useRouter } from "next/navigation";
 
 export default function NewSettingPage() {
-  const router = useRouter();
-
   const fields = [
     { name: "key", label: "Setting Key", type: "text" as const, required: true, placeholder: "e.g. contact_email, hero_title" },
     { name: "value", label: "Setting Value", type: "textarea" as const, required: true, placeholder: "Configuration value..." },
@@ -15,8 +13,6 @@ export default function NewSettingPage() {
 
   const handleSubmit = async (data: any) => {
     await upsertSetting(data);
-    router.push("/admin/settings");
-    router.refresh();
   };
 
   return (
@@ -37,3 +33,4 @@ export default function NewSettingPage() {
     </div>
   );
 }
+

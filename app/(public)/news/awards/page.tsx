@@ -4,7 +4,7 @@ import { Award, Trophy, Star, ShieldCheck } from "lucide-react"
 export const revalidate = 3600
 
 export default async function AwardsPage() {
-  let awards = []
+  let awards: any[] = []
   try {
     const allArticles = await prisma.article.findMany({
       where: { published: true },

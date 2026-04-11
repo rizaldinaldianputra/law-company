@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from "@/lib/prisma";
-import { uploadFile, listAllObjects } from "@/lib/minio";
+import { uploadFile, listAllObjects, supabase } from "@/lib/supabase";
 
 export async function loginAction(formData: FormData) {
   const password = formData.get('password');
@@ -43,14 +43,18 @@ export async function upsertArticle(formData: FormData) {
   const authorName = formData.get('authorName') as string | null;
   const readingTime = formData.get('readingTime') as string | null;
   const keyTakeaways = formData.get('keyTakeaways') as string | null;
-  const slugInput = formData.get('slug') as string | null;
   const image = formData.get('image');
 
-  const slug = slugInput || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+  // Auto-generate slug from title if not already present or if title changed significantly
+  const slug = title.toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '')
+    .substring(0, 100);
   
   let imageUrl = typeof image === 'string' ? image : null;
   if (image instanceof File && image.size > 0) {
-    imageUrl = await uploadFile(image);
+    const fileName = `articles/${Date.now()}-${image.name}`;
+    imageUrl = await uploadFile(image, fileName);
   }
 
   const data = {
@@ -79,8 +83,8 @@ export async function upsertArticle(formData: FormData) {
     }
     return { success: true };
   } catch (err: any) {
-    if (err.code === 'P2002') throw new Error("Slug already exists.");
-    throw err;
+    console.error("Article upsert error:", err);
+    throw new Error(err.message || "Failed to save article.");
   }
 }
 
@@ -102,18 +106,22 @@ export async function upsertLawyer(formData: FormData) {
   const expertise = formData.get('expertise') as string | null;
   const languages = formData.get('languages') as string | null;
   const socialLinks = formData.get('socialLinks') as string | null;
-  const slugInput = formData.get('slug') as string | null;
   const image = formData.get('image');
 
-  const slug = slugInput || name.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+  // Auto-generate slug from name
+  const slug = name.toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '')
+    .substring(0, 100);
   
   let imageUrl = typeof image === 'string' ? image : null;
   
   if (image instanceof File && image.size > 0) {
     try {
-      imageUrl = await uploadFile(image);
+      const fileName = `lawyers/${Date.now()}-${image.name}`;
+      imageUrl = await uploadFile(image, fileName);
     } catch (err: any) {
-      console.error("Minio upload failed:", err);
+      console.error("Supabase upload failed:", err);
       throw new Error("Failed to upload image. Please check storage connection.");
     }
   }
@@ -145,8 +153,8 @@ export async function upsertLawyer(formData: FormData) {
     }
     return { success: true };
   } catch (err: any) {
-    if (err.code === 'P2002') throw new Error("Slug already exists.");
-    throw err;
+    console.error("Lawyer upsert error:", err);
+    throw new Error(err.message || "Failed to save lawyer.");
   }
 }
 
@@ -163,14 +171,18 @@ export async function upsertPracticeArea(formData: FormData) {
   const description = formData.get('description') as string;
   const tags = formData.get('tags') as string | null;
   const icon = formData.get('icon') as string | null;
-  const slugInput = formData.get('slug') as string | null;
   const image = formData.get('image');
 
-  const slug = slugInput || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+  // Auto-generate slug from title
+  const slug = title.toLowerCase()
+    .replace(/ /g, '-')
+    .replace(/[^\w-]+/g, '')
+    .substring(0, 100);
   
   let imageUrl = typeof image === 'string' ? image : null;
   if (image instanceof File && image.size > 0) {
-    imageUrl = await uploadFile(image);
+    const fileName = `practice-areas/${Date.now()}-${image.name}`;
+    imageUrl = await uploadFile(image, fileName);
   }
 
   const data = {
@@ -190,8 +202,8 @@ export async function upsertPracticeArea(formData: FormData) {
     }
     return { success: true };
   } catch (err: any) {
-    if (err.code === 'P2002') throw new Error("Slug already exists.");
-    throw err;
+    console.error("Practice area upsert error:", err);
+    throw new Error(err.message || "Failed to save practice area.");
   }
 }
 
@@ -210,7 +222,8 @@ export async function upsertClient(formData: FormData) {
   
   let logoUrl = typeof logo === 'string' ? logo : null;
   if (logo instanceof File && logo.size > 0) {
-    logoUrl = await uploadFile(logo);
+    const fileName = `clients/${Date.now()}-${logo.name}`;
+    logoUrl = await uploadFile(logo, fileName);
   }
 
   const data = {
@@ -227,7 +240,8 @@ export async function upsertClient(formData: FormData) {
     }
     return { success: true };
   } catch (err: any) {
-    throw err;
+    console.error("Client upsert error:", err);
+    throw new Error(err.message || "Failed to save client.");
   }
 }
 
@@ -241,7 +255,7 @@ export async function deleteClient(id: string) {
 export async function upsertMedia(formData: FormData) {
   const id = formData.get('id') as string | null;
   const title = formData.get('title') as string;
-  const url = formData.get('url') as string;
+  const url = formData.get('url') as string | null; // Optional
   const publisher = formData.get('publisher') as string | null;
   const dateStr = formData.get('date') as string | null;
   
@@ -249,17 +263,22 @@ export async function upsertMedia(formData: FormData) {
 
   const data = {
     title,
-    url,
+    url: url || '', // Handle optional
     publisher,
     date: parsedDate,
   }
 
-  if (id) {
-    await prisma.media.update({ where: { id }, data: data as any });
-  } else {
-    await prisma.media.create({ data: data as any });
+  try {
+    if (id) {
+      await prisma.media.update({ where: { id }, data: data as any });
+    } else {
+      await prisma.media.create({ data: data as any });
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error("Media coverage upsert error:", err);
+    throw new Error(err.message || "Failed to save media coverage.");
   }
-  return { success: true };
 }
 
 export async function deleteMedia(id: string) {
@@ -276,12 +295,17 @@ export async function upsertSetting(formData: FormData) {
 
   const data = { key, value };
 
-  if (id) {
-    await prisma.setting.update({ where: { id }, data });
-  } else {
-    await prisma.setting.create({ data });
+  try {
+    if (id) {
+      await prisma.setting.update({ where: { id }, data });
+    } else {
+      await prisma.setting.create({ data });
+    }
+    return { success: true };
+  } catch (err: any) {
+    console.error("Setting upsert error:", err);
+    throw new Error(err.message || "Failed to save setting.");
   }
-  return { success: true };
 }
 
 export async function deleteSetting(id: string) {
@@ -289,20 +313,26 @@ export async function deleteSetting(id: string) {
   return { success: true };
 }
 
+
 // ─── MEDIA LIBRARY ACTIONS ───
 
 export async function getMediaObjects() {
   try {
     const objects = await listAllObjects()
-    const baseUrl = process.env.NEXT_PUBLIC_MINIO_URL || `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`
-    const bucket = process.env.MINIO_BUCKET || 'lawfirm'
+    const bucketName = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || "lawfirm-assets"
     
-    return objects.map(obj => ({
-      name: obj.name,
-      size: obj.size,
-      lastModified: obj.lastModified,
-      url: `${baseUrl}/${bucket}/${obj.name}`
-    }))
+    return objects.map(obj => {
+      const { data: { publicUrl } } = supabase.storage
+        .from(bucketName)
+        .getPublicUrl(obj.name)
+        
+      return {
+        name: obj.name,
+        size: obj.size,
+        lastModified: obj.lastModified,
+        url: publicUrl
+      }
+    })
   } catch (error) {
     console.error("Failed to list media objects:", error)
     return []

@@ -6,19 +6,15 @@ import { upsertMedia } from "../../actions";
 import { useRouter } from "next/navigation";
 
 export default function NewMediaPage() {
-  const router = useRouter();
-
   const fields = [
     { name: "title", label: "Headline / Title", type: "text" as const, required: true },
     { name: "publisher", label: "Media Publisher", type: "text" as const, required: true, placeholder: "e.g. Forbes, Bloomberg, Reuters" },
-    { name: "url", label: "External Source URL", type: "url" as const, required: true },
-    { name: "date", label: "Publication Date", type: "text" as const, placeholder: "YYYY-MM-DD" },
+    { name: "url", label: "External Source URL", type: "url" as const },
+    { name: "date", label: "Publication Date", type: "datetime" as const },
   ];
 
   const handleSubmit = async (data: any) => {
     await upsertMedia(data);
-    router.push("/admin/media");
-    router.refresh();
   };
 
   return (
@@ -39,3 +35,4 @@ export default function NewMediaPage() {
     </div>
   );
 }
+
