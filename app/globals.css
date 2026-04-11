@@ -1,26 +1,83 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  --color-maroon: #7C1D1D;
+  --color-maroon-dark: #5C1414;
+  --color-maroon-light: #9B2C2C;
+  --color-gold: #C9A844;
+  --color-gold-light: #E2C47A;
+  --color-black: #0A0A0A;
+  --color-dark: #111111;
+  --color-dark-2: #1A1A1A;
+  
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Inter", system-ui, sans-serif;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --animate-mask-up: maskUp 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in-up: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-float: float 4s ease-in-out infinite;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-shimmer: shimmer 4s linear infinite;
+
+  @keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  @keyframes maskUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
   }
 }
 
+:root {
+  --maroon: #7C1D1D;
+  --gold: #C9A844;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  background: white;
+  color: #0A0A0A;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+}
+
+/* Base Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #111;
+}
+::-webkit-scrollbar-thumb {
+  background: #7C1D1D;
+  border-radius: 10px;
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  transition-duration: 800ms;
+}
+
+@utility visible {
+  opacity: 1;
+  transform: translateY(0);
 }

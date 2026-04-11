@@ -1,0 +1,28 @@
+import { prisma } from "@/lib/prisma";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { EditArticleForm } from "./EditArticleForm";
+import { notFound } from "next/navigation";
+
+export default async function EditArticlePage({ params }: { params: { id: string } }) {
+  const { id } = await params;
+  
+  const article = await prisma.article.findUnique({
+    where: { id }
+  });
+
+  if (!article) {
+    notFound();
+  }
+
+  return (
+    <div className="pb-24">
+      <AdminPageHeader 
+        title="Edit Article" 
+        backHref="/admin/articles"
+        description={`Update details for: ${article.title}`}
+      />
+      
+      <EditArticleForm initialData={article} />
+    </div>
+  );
+}
