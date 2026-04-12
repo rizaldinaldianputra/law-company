@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+import { Article } from "@prisma/client"
 import { BookOpen, FileText, ChevronRight } from "lucide-react"
 import Link from "next/link"
 
 export const revalidate = 3600
 
 export default async function ResearchPage() {
-  let research = []
+  let research: Article[] = []
   try {
     const allArticles = await prisma.article.findMany({
       where: { published: true },

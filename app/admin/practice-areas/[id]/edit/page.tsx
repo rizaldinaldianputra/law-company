@@ -1,9 +1,10 @@
 import { prisma } from "@/lib/prisma";
+export const dynamic = "force-dynamic";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { EditPracticeAreaForm } from "./EditPracticeAreaForm";
 import { notFound } from "next/navigation";
 
-export default async function EditPracticeAreaPage({ params }: { params: { id: string } }) {
+export default async function EditPracticeAreaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
   const area = await prisma.practiceArea.findUnique({

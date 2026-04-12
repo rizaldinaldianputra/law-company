@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
 import Link from "next/link"
 import { ArrowRight, ChevronRight, Scale, Shield, Users, Clock, Mail, Phone, MapPin } from "lucide-react"
 import { Hero } from "@/components/layout/Hero"

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
 import { notFound } from "next/navigation"
 import { Calendar, Tag, ChevronLeft, ArrowLeft } from "lucide-react"
 import Link from "next/link"

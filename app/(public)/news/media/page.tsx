@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+import { Media } from "@prisma/client"
 import Link from "next/link"
 import { Calendar, ExternalLink, Newspaper } from "lucide-react"
 
 export const revalidate = 3600
 
 export default async function MediaCoveragePage() {
-  let media = []
+  let media: Media[] = []
   try {
     media = await prisma.media.findMany({
       orderBy: { date: "desc" },

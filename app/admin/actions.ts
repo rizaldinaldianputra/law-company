@@ -329,7 +329,7 @@ export async function getMediaObjects() {
       return {
         name: obj.name,
         size: obj.size,
-        lastModified: obj.lastModified,
+        lastModified: new Date(obj.lastModified),
         url: publicUrl
       }
     })

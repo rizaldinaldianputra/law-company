@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+import { Article } from "@prisma/client"
 import { Briefcase, MapPin, Clock, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export const revalidate = 3600
 
 export default async function CareerPage() {
-  let jobs = []
+  let jobs: Article[] = []
   try {
     const allArticles = await prisma.article.findMany({
       where: { published: true },

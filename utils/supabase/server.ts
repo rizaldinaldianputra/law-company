@@ -5,9 +5,19 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
 
 export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) => {
+  if (!supabaseUrl || !supabaseKey) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Supabase environment variables are missing.");
+    }
+    // Return a proxy that ignores all calls to avoid crashing during build-time static analysis
+    return new Proxy({} as any, {
+      get: () => () => ({ data: null, error: null }),
+    });
+  }
+
   return createServerClient(
-    supabaseUrl!,
-    supabaseKey!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {

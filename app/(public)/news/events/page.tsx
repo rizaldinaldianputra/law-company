@@ -1,11 +1,13 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+import { Article } from "@prisma/client"
 import { Calendar, MapPin, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export const revalidate = 3600
 
 export default async function EventsPage() {
-  let events = []
+  let events: Article[] = []
   try {
     const allArticles = await prisma.article.findMany({
       where: { published: true },

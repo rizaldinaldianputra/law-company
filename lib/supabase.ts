@@ -7,10 +7,28 @@ if (!supabaseUrl || !supabaseServiceRoleKey) {
   console.warn("Supabase environment variables are missing. File uploads will fail.")
 }
 
-export const supabase = createClient(
-  supabaseUrl || "",
-  supabaseServiceRoleKey || ""
-)
+let supabaseInstance: ReturnType<typeof createClient> | undefined
+
+const getSupabase = () => {
+  if (supabaseInstance) return supabaseInstance
+  
+  if (!supabaseUrl || !supabaseServiceRoleKey) {
+    // Return a dummy proxy that avoids crashing during build-time static analysis
+    return new Proxy({} as any, {
+      get: () => () => ({ data: null, error: null }),
+    })
+  }
+  
+  supabaseInstance = createClient(supabaseUrl, supabaseServiceRoleKey)
+  return supabaseInstance
+}
+
+export const supabase = new Proxy({} as ReturnType<typeof createClient>, {
+  get: (target, prop) => {
+    const instance = getSupabase()
+    return (instance as any)[prop]
+  }
+})
 
 export async function uploadFile(file: File, path: string): Promise<string> {
   if (!supabaseUrl || !supabaseServiceRoleKey) {

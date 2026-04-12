@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
+import { Article } from "@prisma/client"
 import { Award, Trophy, Star, ShieldCheck } from "lucide-react"
 
 export const revalidate = 3600
 
 export default async function AwardsPage() {
-  let awards: any[] = []
+  let awards: Article[] = []
   try {
     const allArticles = await prisma.article.findMany({
       where: { published: true },

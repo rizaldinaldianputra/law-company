@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma"
+export const dynamic = "force-dynamic"
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader"
 import { ClientList } from "@/components/admin/clients/ClientList"
 
