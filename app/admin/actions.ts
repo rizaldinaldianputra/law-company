@@ -3,31 +3,44 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from "@/lib/prisma";
-import { uploadFile, listAllObjects, supabase } from "@/lib/supabase";
+import { uploadFile, listAllObjects, supabase as legacySupabase } from "@/lib/supabase";
+import { createClient } from '@/utils/supabase/server';
 
 export async function loginAction(formData: FormData) {
-  const password = formData.get('password');
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
 
-  // Simple hardcoded check for now. 
-  // In production, this would check against a DB or environment variable.
-  if (password === 'admin123') {
-    const cookieStore = await cookies();
-    cookieStore.set('admin_session', 'true', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24, // 1 day
-      path: '/',
-    });
-    
-    return { success: true };
+  const cookieStore = await cookies();
+  const supabase = createClient(cookieStore);
+
+  // 1. Authenticate with Supabase
+  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (authError) {
+    return { error: authError.message };
   }
 
-  return { error: 'Invalid password' };
+  // 2. Check if user exists in the database 'User' table
+  const dbUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!dbUser) {
+    // If authenticated but not in User table, sign out and deny access
+    await supabase.auth.signOut();
+    return { error: 'Unauthorized: You are not registered as an administrator.' };
+  }
+
+  return { success: true };
 }
 
 export async function logoutAction() {
   const cookieStore = await cookies();
-  cookieStore.delete('admin_session');
+  const supabase = createClient(cookieStore);
+  await supabase.auth.signOut();
   redirect('/admin/login');
 }
 
@@ -322,7 +335,7 @@ export async function getMediaObjects() {
     const bucketName = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || "lawfirm-assets"
     
     return objects.map(obj => {
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl } } = legacySupabase.storage
         .from(bucketName)
         .getPublicUrl(obj.name)
         

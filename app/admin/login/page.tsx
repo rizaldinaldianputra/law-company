@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Lock, Shield, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function LoginPage() {
     setError('');
 
     const formData = new FormData();
+    formData.append('email', email);
     formData.append('password', password);
 
     const result = await loginAction(formData);
@@ -60,7 +62,22 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-gold uppercase tracking-[0.2em] ml-1">Access Credentials</label>
+              <label className="text-xs font-bold text-gold uppercase tracking-[0.2em] ml-1">Email Address</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Enter administrator email"
+                  className="w-full bg-white/5 border border-white/10 rounded-sm py-4 px-12 text-white placeholder:text-gray-600 focus:outline-none focus:border-gold/50 focus:bg-white/[0.08] transition-all"
+                  required
+                />
+                <Shield className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gold/50" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-gold uppercase tracking-[0.2em] ml-1">Password</label>
               <div className="relative">
                 <input
                   type="password"
