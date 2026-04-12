@@ -6,9 +6,10 @@
   --color-maroon-light: #9B2C2C;
   --color-gold: #C9A844;
   --color-gold-light: #E2C47A;
-  --color-black: #0A0A0A;
-  --color-dark: #111111;
-  --color-dark-2: #1A1A1A;
+  --color-gold-dark: #B8922A;
+  --color-black: #050505;
+  --color-dark: #0A0A0A;
+  --color-dark-2: #141414;
   
   --font-serif: "Playfair Display", Georgia, serif;
   --font-sans: "Inter", system-ui, sans-serif;
@@ -25,13 +26,13 @@
   }
 
   @keyframes maskUp {
-    from { transform: translateY(100%); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+    from { transform: translateY(110%) skewY(5deg); opacity: 0; filter: blur(10px); }
+    to { transform: translateY(0) skewY(0); opacity: 1; filter: blur(0); }
   }
 
   @keyframes fadeInUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(40px); filter: blur(4px); }
+    to { opacity: 1; transform: translateY(0); filter: blur(0); }
   }
 
   @keyframes float {
@@ -43,6 +44,9 @@
 :root {
   --maroon: #7C1D1D;
   --gold: #C9A844;
+  --white-bg: #FFFFFF;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 body {

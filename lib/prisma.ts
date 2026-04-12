@@ -1,16 +1,28 @@
 import { PrismaClient } from "@prisma/client"
+import { PrismaPg } from "@prisma/adapter-pg"
+import pg from "pg"
 
 const prismaClientSingleton = () => {
-  return new PrismaClient()
+  const connectionString = process.env.DATABASE_URL
+  if (!connectionString) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("DATABASE_URL is missing. Prisma will not be able to connect.")
+    }
+    return new PrismaClient()
+  }
+
+  const pool = new pg.Pool({ connectionString })
+  const adapter = new PrismaPg(pool)
+  return new PrismaClient({ adapter })
 }
 
 declare global {
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-let prismaInstance: PrismaClient | undefined
+let prismaInstance: ReturnType<typeof prismaClientSingleton> | undefined
 
-export const getPrisma = (): PrismaClient => {
+export const getPrisma = (): ReturnType<typeof prismaClientSingleton> => {
   if (prismaInstance) return prismaInstance
   
   if (globalThis.prisma) {
@@ -18,7 +30,7 @@ export const getPrisma = (): PrismaClient => {
     return prismaInstance
   }
 
-  prismaInstance = new PrismaClient()
+  prismaInstance = prismaClientSingleton()
   
   if (process.env.NODE_ENV !== "production") {
     globalThis.prisma = prismaInstance

@@ -7,34 +7,45 @@ import { uploadFile, listAllObjects, supabase as legacySupabase } from "@/lib/su
 import { createClient } from '@/utils/supabase/server';
 
 export async function loginAction(formData: FormData) {
-  const email = formData.get('email') as string;
-  const password = formData.get('password') as string;
+  try {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
 
-  const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
+    const cookieStore = await cookies();
+    const supabase = createClient(cookieStore);
 
-  // 1. Authenticate with Supabase
-  const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  });
+    // 1. Authenticate with Supabase
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-  if (authError) {
-    return { error: authError.message };
+    if (authError) {
+      return { error: authError.message };
+    }
+
+    // 2. Check if user exists in the database 'User' table
+    try {
+      const dbUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (!dbUser) {
+        // If authenticated but not in User table, sign out and deny access
+        await supabase.auth.signOut();
+        return { error: 'Unauthorized: You are not registered as an administrator.' };
+      }
+    } catch (dbError: any) {
+      console.error("Database connection error during login:", dbError);
+      // Don't sign out yet, but inform about the connection issue
+      return { error: 'Database connection failed. Please ensure your database is online.' };
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Login unexpected error:", error);
+    return { error: error.message || 'An unexpected error occurred during login.' };
   }
-
-  // 2. Check if user exists in the database 'User' table
-  const dbUser = await prisma.user.findUnique({
-    where: { email },
-  });
-
-  if (!dbUser) {
-    // If authenticated but not in User table, sign out and deny access
-    await supabase.auth.signOut();
-    return { error: 'Unauthorized: You are not registered as an administrator.' };
-  }
-
-  return { success: true };
 }
 
 export async function logoutAction() {
