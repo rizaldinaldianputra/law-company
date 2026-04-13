@@ -3,7 +3,18 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import pg from "pg"
 
 const prismaClientSingleton = () => {
-  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+  const connectionString = process.env.DATABASE_URL;
+  
+  if (!connectionString) {
+    console.error("CRITICAL: DATABASE_URL is not defined. Prisma cannot connect to the database.");
+    // In production, we'll let it throw so the developer sees the crash in logs, 
+    // but in development we want to avoid breaking the build if possible.
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("Missing DATABASE_URL environment variable.");
+    }
+  }
+
+  const pool = new pg.Pool({ connectionString })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }
