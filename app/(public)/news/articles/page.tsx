@@ -7,13 +7,17 @@ export const revalidate = 3600
 
 async function getNewsByCategory(category: string) {
   try {
-    const allArticles = await prisma.article.findMany({
+    const articles = await prisma.article.findMany({
       where: {
         published: true,
+        category: {
+          equals: category,
+          mode: 'insensitive'
+        }
       },
       orderBy: { createdAt: "desc" },
     })
-    return allArticles.filter(a => a.category === category)
+    return articles
   } catch (error) {
     console.error("Fetch error:", error)
     return []

@@ -53,7 +53,7 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
   // Auto-generate slug when title changes
   useEffect(() => {
     if (!isSlugTouched && formData.title) {
-      setFormData(prev => ({ ...prev, slug: slugify(formData.title) }));
+      setFormData((prev: any) => ({ ...prev, slug: slugify(formData.title) }));
     }
   }, [formData.title, isSlugTouched]);
 
@@ -192,7 +192,26 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">
                   {getFieldLabel(field)} {field.required && <span className="text-red-500">*</span>}
                 </label>
-
+                {field.type === "textarea" ? (
+                  <textarea
+                    value={formData[field.name] || ""}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    placeholder={field.placeholder}
+                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all h-32 disabled:opacity-70 disabled:cursor-not-allowed"
+                    required={field.required}
+                    readOnly={field.readOnly}
+                  />
+                ) : field.type === "richtext" ? (
+                  <div className="bg-gray-50/50 border border-gray-200 rounded-2xl overflow-hidden focus-within:border-gold focus-within:ring-4 focus-within:ring-gold/5 transition-all">
+                    <ReactQuill
+                      theme="snow"
+                      value={formData[field.name] || ""}
+                      onChange={(value) => handleChange(field.name, value)}
+                      modules={quillModules}
+                      className="bg-transparent"
+                      readOnly={field.readOnly}
+                    />
+                  </div>
                 ) : field.type === "select" ? (
                   <select
                     value={formData[field.name] || ""}
@@ -218,6 +237,15 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
                     </button>
                     <span className="text-[12px] font-bold text-gray-600 uppercase tracking-tighter">{formData[field.name] ? 'Active' : 'Inactive'}</span>
                   </div>
+                ) : field.type === "datetime" ? (
+                  <input
+                    type="datetime-local"
+                    value={formatDateTimeLocal(formData[field.name])}
+                    onChange={(e) => handleChange(field.name, e.target.value)}
+                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                    required={field.required}
+                    readOnly={field.readOnly}
+                  />
                 ) : (
                   <input
                     type={field.type === "url" ? "url" : "text"}

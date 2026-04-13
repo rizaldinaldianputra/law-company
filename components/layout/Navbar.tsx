@@ -83,7 +83,7 @@ export function Navbar() {
               {/* Icon Scale */}
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-7 h-7 text-yellow-500 group-hover:scale-110 transition duration-500"
+                className="w-7 h-7 text-gold group-hover:scale-110 transition duration-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -99,11 +99,11 @@ export function Navbar() {
 
             {/* Text */}
             <div className="flex flex-col">
-              <span className={`font-semibold text-lg tracking-tight font-serif transition duration-300 ${isSolid ? 'text-navy' : 'text-white'} group-hover:text-blue-900`}>
+              <span className={`font-semibold text-lg tracking-tight font-serif transition duration-300 ${isSolid ? 'text-maroon' : 'text-white'} group-hover:text-gold`}>
                 Rizaldi & Associates
               </span>
 
-              <span className={`text-[10px] uppercase tracking-[0.35em] mt-1 opacity-80 ${isSolid ? 'text-navy-light' : 'text-white'}`}>
+              <span className={`text-[10px] uppercase tracking-[0.35em] mt-1 opacity-80 ${isSolid ? 'text-maroon-light' : 'text-white'}`}>
                 High Integrity Counsel
               </span>
             </div>
@@ -121,8 +121,8 @@ export function Navbar() {
                 {link.children ? (
                   <button
                     className={`text-[11px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 py-2 px-4 rounded-full transition-all duration-300 ${dropdown === link.href || pathname.startsWith(link.href)
-                      ? "text-navy bg-navy/5"
-                      : isSolid ? "text-slate-high hover:text-navy" : "text-white/90 hover:text-white"
+                      ? "text-maroon bg-maroon/5"
+                      : isSolid ? "text-slate-high hover:text-maroon" : "text-white/90 hover:text-white"
                       }`}
                   >
                     {link.label}
@@ -131,7 +131,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href={link.href}
-                    className={`text-[11px] font-bold uppercase tracking-[0.2em] py-2 px-4 rounded-full transition-all duration-300 ${pathname === link.href ? "text-navy bg-navy/5" : isSolid ? "text-slate-high hover:text-navy" : "text-white/90 hover:text-white"
+                    className={`text-[11px] font-bold uppercase tracking-[0.2em] py-2 px-4 rounded-full transition-all duration-300 ${pathname === link.href ? "text-maroon bg-maroon/5" : isSolid ? "text-slate-high hover:text-maroon" : "text-white/90 hover:text-white"
                       }`}
                   >
                     {link.label}
@@ -150,8 +150,8 @@ export function Navbar() {
                           key={child.href}
                           href={child.href}
                           className={`flex items-center px-4 py-3 rounded-xl text-[10px] font-bold uppercase tracking-wider transition-all duration-300 ${pathname === child.href
-                            ? "bg-navy text-white"
-                            : "text-slate-mid hover:bg-navy/5 hover:text-navy"
+                            ? "bg-maroon text-white"
+                            : "text-slate-mid hover:bg-maroon/5 hover:text-maroon"
                             }`}
                           onClick={() => setDropdown(null)}
                         >
@@ -183,7 +183,7 @@ export function Navbar() {
               <div key={link.href} className="flex flex-col gap-4">
                 {link.children ? (
                   <div className="flex flex-col gap-2">
-                    <span className="text-navy text-[10px] font-bold uppercase tracking-widest opacity-60">
+                    <span className="text-maroon text-[10px] font-bold uppercase tracking-widest opacity-60">
                       {link.label}
                     </span>
                     <div className="flex flex-col gap-1 pl-4 border-l border-gray-100 mt-2">
@@ -191,7 +191,7 @@ export function Navbar() {
                         <Link
                           key={child.href}
                           href={child.href}
-                          className={`py-3 text-sm font-medium ${pathname === child.href ? 'text-navy' : 'text-slate-high'}`}
+                          className={`py-3 text-sm font-medium ${pathname === child.href ? 'text-maroon' : 'text-slate-high'}`}
                           onClick={() => setMobileOpen(false)}
                         >
                           {child.label}
@@ -202,7 +202,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href={link.href}
-                    className={`text-2xl font-serif border-b border-gray-100 pb-4 ${pathname === link.href ? 'text-navy' : 'text-slate-high'}`}
+                    className={`text-2xl font-serif border-b border-gray-100 pb-4 ${pathname === link.href ? 'text-maroon' : 'text-slate-high'}`}
                     onClick={() => setMobileOpen(false)}
                   >
                     {link.label}
@@ -212,7 +212,7 @@ export function Navbar() {
             ))}
             <Link
               href="/contact"
-              className="mt-8 bg-navy text-white font-bold tracking-[0.1em] uppercase text-[13px] py-6 px-12 rounded-sm flex items-center justify-center gap-3 hover:bg-navy-dark transition-all"
+              className="mt-8 bg-maroon text-white font-bold tracking-[0.1em] uppercase text-[13px] py-6 px-12 rounded-sm flex items-center justify-center gap-3 hover:bg-maroon-dark transition-all"
               onClick={() => setMobileOpen(false)}
             >
               Consult With Us
