@@ -23,7 +23,7 @@ interface Field {
 interface AdminFormProps {
   fields: Field[];
   initialData?: any;
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: any) => Promise<{ success?: boolean; error?: string } | void>;
   cancelHref: string;
   title: string;
 }
@@ -51,12 +51,20 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
           submissionData.append(key, value);
         }
       });
-      await onSubmit(submissionData);
       
+      const result: any = await onSubmit(submissionData);
+      
+      if (result && result.error) {
+        setError(result.error);
+        setLoading(false);
+        return;
+      }
+
       // Centralized success behavior
       router.push(cancelHref);
       router.refresh();
     } catch (err: any) {
+      console.error("Form submission error:", err);
       setError(err.message || "An error occurred while saving.");
       setLoading(false);
     }

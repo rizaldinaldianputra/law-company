@@ -14,8 +14,8 @@ export default function NewPracticeAreaPage() {
     { name: "description", label: "Detailed Description", type: "textarea" as const, required: true, placeholder: "Describe the scope of this practice area..." },
   ];
 
-  const handleSubmit = async (data: any) => {
-    await upsertPracticeArea(data);
+  const handleSubmit = async (data: FormData) => {
+    return await upsertPracticeArea(data);
   };
 
   return (

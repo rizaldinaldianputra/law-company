@@ -11,9 +11,9 @@ export function EditClientForm({ initialData }: { initialData: any }) {
     { name: "website", label: "Official Website URL", type: "url" as const },
   ];
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: FormData) => {
     data.append('id', initialData.id);
-    await upsertClient(data);
+    return await upsertClient(data);
   };
 
   return (

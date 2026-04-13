@@ -12,8 +12,8 @@ export default function NewClientPage() {
     { name: "website", label: "Official Website URL", type: "url" as const },
   ];
 
-  const handleSubmit = async (data: any) => {
-    await upsertClient(data);
+  const handleSubmit = async (data: FormData) => {
+    return await upsertClient(data);
   };
 
   return (

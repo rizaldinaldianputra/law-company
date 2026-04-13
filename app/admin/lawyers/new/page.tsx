@@ -19,8 +19,8 @@ export default function NewLawyerPage() {
     { name: "bio", label: "Professional Biography", type: "textarea" as const, placeholder: "Detailed professional history..." },
   ];
 
-  const handleSubmit = async (data: any) => {
-    await upsertLawyer(data);
+  const handleSubmit = async (data: FormData) => {
+    return await upsertLawyer(data);
   };
 
   return (

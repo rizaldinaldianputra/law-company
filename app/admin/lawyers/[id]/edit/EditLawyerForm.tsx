@@ -18,9 +18,9 @@ export function EditLawyerForm({ initialData }: { initialData: any }) {
     { name: "bio", label: "Professional Biography", type: "textarea" as const },
   ];
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: FormData) => {
     data.append('id', initialData.id);
-    await upsertLawyer(data);
+    return await upsertLawyer(data);
   };
 
   return (
