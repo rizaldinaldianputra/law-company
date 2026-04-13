@@ -3,54 +3,39 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from "@/lib/prisma";
-import { uploadFile, listAllObjects, supabase as legacySupabase } from "@/lib/supabase";
-import { createClient } from '@/utils/supabase/server';
+import { uploadFile, listAllObjects } from "@/lib/minio";
+import slugify from 'slugify';
 
 export async function loginAction(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+
   try {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    const cookieStore = await cookies();
-    const supabase = createClient(cookieStore);
-
-    // 1. Authenticate with Supabase
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const user = await prisma.user.findUnique({
+      where: { email } as any
     });
 
-    if (authError) {
-      return { error: authError.message };
-    }
-
-    // 2. Check if user exists in the database 'User' table
-    try {
-      const dbUser = await prisma.user.findUnique({
-        where: { email },
+    if (user && user.password === password) {
+      const cookieStore = await cookies();
+      cookieStore.set('admin_session', 'true', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24, // 1 day
+        path: '/',
       });
 
-      if (!dbUser) {
-        // If authenticated but not in User table, sign out and deny access
-        await supabase.auth.signOut();
-        return { error: 'Unauthorized: You are not registered as an administrator.' };
-      }
-    } catch (prismaError: any) {
-      console.error("Database connection failed in loginAction:", prismaError);
-      return { error: `Database error: ${prismaError.message || "Unknown connection error"}` };
+      return { success: true };
     }
 
-    return { success: true };
+    return { error: 'Invalid email or password' };
   } catch (err: any) {
-    console.error("Unexpected error in loginAction:", err);
-    return { error: err.message || "An unexpected system error occurred." };
+    return { error: "Database connection error. Please ensure your database is running." };
   }
 }
 
 export async function logoutAction() {
   const cookieStore = await cookies();
-  const supabase = createClient(cookieStore);
-  await supabase.auth.signOut();
+  cookieStore.delete('admin_session');
   redirect('/admin/login');
 }
 
@@ -58,7 +43,10 @@ export async function logoutAction() {
 
 export async function upsertArticle(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    // Ensure we parse to number but cast to any to avoid stale type errors
+    const id = idStr ? Number(idStr) : null;
+
     const title = formData.get('title') as string;
     const content = formData.get('content') as string;
     const excerpt = formData.get('excerpt') as string | null;
@@ -68,16 +56,15 @@ export async function upsertArticle(formData: FormData) {
     const readingTime = formData.get('readingTime') as string | null;
     const keyTakeaways = formData.get('keyTakeaways') as string | null;
     const image = formData.get('image');
+    const eventDate = formData.get('eventDate') as string | null;
+    const location = formData.get('location') as string | null;
+    const jobType = formData.get('jobType') as string | null;
 
-    // Auto-generate slug from title
-    const slug = title.toLowerCase()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '')
-      .substring(0, 100);
-    
+    const slug = slugify(title, { lower: true, strict: true }).substring(0, 100);
+
     let imageUrl = typeof image === 'string' ? image : null;
     if (image instanceof File && image.size > 0) {
-      imageUrl = await uploadFile(image, `articles/${Date.now()}-${image.name}`);
+      imageUrl = await uploadFile(image);
     }
 
     const data = {
@@ -90,23 +77,26 @@ export async function upsertArticle(formData: FormData) {
       readingTime,
       keyTakeaways,
       slug,
+      eventDate: (eventDate && !isNaN(Date.parse(eventDate))) ? new Date(eventDate) : null,
+      location,
+      jobType,
       image: imageUrl || (id ? undefined : '')
     };
 
     if (id) {
-      await prisma.article.update({ where: { id }, data: data as any });
+      // Direct cast to any to bypass stale LawyerWhereUniqueInput/ArticleWhereUniqueInput checks
+      await prisma.article.update({ where: { id: id as any }, data: data as any });
     } else {
       await prisma.article.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Article upsert error:", err);
     return { error: err.message || "Failed to save article." };
   }
 }
 
-export async function deleteArticle(id: string) {
-  await prisma.article.delete({ where: { id } });
+export async function deleteArticle(id: number) {
+  await prisma.article.delete({ where: { id: id as any } });
   return { success: true };
 }
 
@@ -114,7 +104,9 @@ export async function deleteArticle(id: string) {
 
 export async function upsertLawyer(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    const id = idStr ? Number(idStr) : null;
+
     const name = formData.get('name') as string;
     const title = formData.get('title') as string;
     const bio = formData.get('bio') as string | null;
@@ -126,14 +118,11 @@ export async function upsertLawyer(formData: FormData) {
     const socialLinks = formData.get('socialLinks') as string | null;
     const image = formData.get('image');
 
-    const slug = name.toLowerCase()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '')
-      .substring(0, 100);
-    
+    const slug = slugify(name, { lower: true, strict: true }).substring(0, 100);
+
     let imageUrl = typeof image === 'string' ? image : null;
     if (image instanceof File && image.size > 0) {
-      imageUrl = await uploadFile(image, `lawyers/${Date.now()}-${image.name}`);
+      imageUrl = await uploadFile(image);
     }
 
     const data = {
@@ -151,19 +140,18 @@ export async function upsertLawyer(formData: FormData) {
     };
 
     if (id) {
-      await prisma.lawyer.update({ where: { id }, data: data as any });
+      await prisma.lawyer.update({ where: { id: id as any }, data: data as any });
     } else {
       await prisma.lawyer.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Lawyer upsert error:", err);
     return { error: err.message || "Failed to save lawyer." };
   }
 }
 
-export async function deleteLawyer(id: string) {
-  await prisma.lawyer.delete({ where: { id } });
+export async function deleteLawyer(id: number) {
+  await prisma.lawyer.delete({ where: { id: id as any } });
   return { success: true };
 }
 
@@ -171,21 +159,20 @@ export async function deleteLawyer(id: string) {
 
 export async function upsertPracticeArea(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    const id = idStr ? Number(idStr) : null;
+
     const title = formData.get('title') as string;
     const description = formData.get('description') as string;
     const tags = formData.get('tags') as string | null;
     const icon = formData.get('icon') as string | null;
     const image = formData.get('image');
 
-    const slug = title.toLowerCase()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '')
-      .substring(0, 100);
-    
+    const slug = slugify(title, { lower: true, strict: true }).substring(0, 100);
+
     let imageUrl = typeof image === 'string' ? image : null;
     if (image instanceof File && image.size > 0) {
-      imageUrl = await uploadFile(image, `practice-areas/${Date.now()}-${image.name}`);
+      imageUrl = await uploadFile(image);
     }
 
     const data = {
@@ -198,34 +185,46 @@ export async function upsertPracticeArea(formData: FormData) {
     };
 
     if (id) {
-      await prisma.practiceArea.update({ where: { id }, data: data as any });
+      await prisma.practiceArea.update({ where: { id: id as any }, data: data as any });
     } else {
       await prisma.practiceArea.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Practice area upsert error:", err);
-    return { error: err.message || "Failed to save practice area." };
+    console.error("Save error:", err);
+    if (err.code === 'P2002') {
+      return { error: `Another record with this ${err.meta?.target?.[0] || 'title'} already exists.` };
+    }
+    return { error: err.message || "Failed to save record." };
   }
 }
 
-export async function deletePracticeArea(id: string) {
-  await prisma.practiceArea.delete({ where: { id } });
-  return { success: true };
+export async function deletePracticeArea(id: number) {
+  try {
+    console.log("Deleting record with ID:", id);
+    await prisma.practiceArea.delete({ where: { id: id as any } });
+    return { success: true };
+  } catch (err: any) {
+    console.error("Delete error:", err);
+    throw err;
+  }
 }
+
 
 // ─── CLIENT ACTIONS ───
 
 export async function upsertClient(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    const id = idStr ? Number(idStr) : null;
+
     const name = formData.get('name') as string;
     const website = formData.get('website') as string | null;
     const logo = formData.get('logo');
-    
+
     let logoUrl = typeof logo === 'string' ? logo : null;
     if (logo instanceof File && logo.size > 0) {
-      logoUrl = await uploadFile(logo, `clients/${Date.now()}-${logo.name}`);
+      logoUrl = await uploadFile(logo);
     }
 
     const data = {
@@ -235,19 +234,18 @@ export async function upsertClient(formData: FormData) {
     };
 
     if (id) {
-      await prisma.client.update({ where: { id }, data: data as any });
+      await prisma.client.update({ where: { id: id as any }, data: data as any });
     } else {
       await prisma.client.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Client upsert error:", err);
     return { error: err.message || "Failed to save client." };
   }
 }
 
-export async function deleteClient(id: string) {
-  await prisma.client.delete({ where: { id } });
+export async function deleteClient(id: number) {
+  await prisma.client.delete({ where: { id: id as any } });
   return { success: true };
 }
 
@@ -255,12 +253,14 @@ export async function deleteClient(id: string) {
 
 export async function upsertMedia(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    const id = idStr ? Number(idStr) : null;
+
     const title = formData.get('title') as string;
     const url = formData.get('url') as string | null;
     const publisher = formData.get('publisher') as string | null;
     const dateStr = formData.get('date') as string | null;
-    
+
     const parsedDate = dateStr ? new Date(dateStr) : null;
 
     const data = {
@@ -271,19 +271,18 @@ export async function upsertMedia(formData: FormData) {
     };
 
     if (id) {
-      await prisma.media.update({ where: { id }, data: data as any });
+      await prisma.media.update({ where: { id: id as any }, data: data as any });
     } else {
       await prisma.media.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Media upsert error:", err);
     return { error: err.message || "Failed to save media coverage." };
   }
 }
 
-export async function deleteMedia(id: string) {
-  await prisma.media.delete({ where: { id } });
+export async function deleteMedia(id: number) {
+  await prisma.media.delete({ where: { id: id as any } });
   return { success: true };
 }
 
@@ -291,51 +290,45 @@ export async function deleteMedia(id: string) {
 
 export async function upsertSetting(formData: FormData) {
   try {
-    const id = formData.get('id') as string | null;
+    const idStr = formData.get('id');
+    const id = idStr ? Number(idStr) : null;
+
     const key = formData.get('key') as string;
     const value = formData.get('value') as string;
 
     const data = { key, value };
 
     if (id) {
-      await prisma.setting.update({ where: { id }, data });
+      await prisma.setting.update({ where: { id: id as any }, data: data as any });
     } else {
-      await prisma.setting.create({ data });
+      await prisma.setting.create({ data: data as any });
     }
     return { success: true };
   } catch (err: any) {
-    console.error("Setting upsert error:", err);
     return { error: err.message || "Failed to save setting." };
   }
 }
 
-export async function deleteSetting(id: string) {
-  await prisma.setting.delete({ where: { id } });
+export async function deleteSetting(id: number) {
+  await prisma.setting.delete({ where: { id: id as any } });
   return { success: true };
 }
-
 
 // ─── MEDIA LIBRARY ACTIONS ───
 
 export async function getMediaObjects() {
   try {
     const objects = await listAllObjects()
-    const bucketName = process.env.NEXT_PUBLIC_SUPABASE_BUCKET || "lawfirm-assets"
-    
-    return objects.map(obj => {
-      const { data: { publicUrl } } = legacySupabase.storage
-        .from(bucketName)
-        .getPublicUrl(obj.name)
-        
-      return {
-        name: obj.name,
-        size: obj.size,
-        lastModified: new Date(obj.lastModified),
-        url: publicUrl
-      }
-    })
+    const baseUrl = process.env.NEXT_PUBLIC_MINIO_URL || `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`
+    const bucket = process.env.MINIO_BUCKET || 'lawfirm'
+
+    return objects.map(obj => ({
+      name: obj.name,
+      size: obj.size,
+      lastModified: obj.lastModified,
+      url: `${baseUrl}/${bucket}/${obj.name}`
+    }))
   } catch (error) {
-    console.error("Failed to list media objects:", error)
     return []
   }
 }

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Loader2, Save, X, Smile, Calendar } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import 'react-quill-new/dist/quill.snow.css';
+import { toast } from "react-hot-toast";
 
 // Dynamically import heavy editors/pickers for better performance and SSR safety
 const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false });
@@ -18,6 +19,8 @@ interface Field {
   placeholder?: string;
   options?: { label: string; value: string }[];
   required?: boolean;
+  readOnly?: boolean;
+
 }
 
 interface AdminFormProps {
@@ -34,8 +37,28 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [activeEmojiPicker, setActiveEmojiPicker] = useState<string | null>(null);
+  const [isSlugTouched, setIsSlugTouched] = useState(!!initialData?.slug);
+
+  // Helper to slugify text
+  const slugify = (text: string) => {
+    return text
+      .toString()
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')     // Replace spaces with -
+      .replace(/[^\w-]+/g, '')  // Remove all non-word chars
+      .replace(/--+/g, '-');    // Replace multiple - with single -
+  };
+
+  // Auto-generate slug when title changes
+  useEffect(() => {
+    if (!isSlugTouched && formData.title) {
+      setFormData(prev => ({ ...prev, slug: slugify(formData.title) }));
+    }
+  }, [formData.title, isSlugTouched]);
 
   const handleChange = (name: string, value: any) => {
+    if (name === 'slug') setIsSlugTouched(true);
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
@@ -43,29 +66,45 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
     e.preventDefault();
     setLoading(true);
     setError("");
+    const t = toast.loading("Saving changes...");
+
     try {
       const submissionData = new FormData();
+      // Define internal fields to exclude from submission
+      const internalFields = ['createdAt', 'updatedAt', 'uniqueId', 'isSlugTouched'];
+
       Object.keys(formData).forEach(key => {
+        if (internalFields.includes(key)) return;
+
         const value = formData[key];
         if (value !== null && value !== undefined && value !== "") {
           submissionData.append(key, value);
         }
       });
-      
+
+      // Ensure ID is sent as a string if it exists in initialData/formData
+      if (formData.id) {
+        submissionData.set('id', formData.id.toString());
+      }
+
       const result: any = await onSubmit(submissionData);
-      
+
       if (result && result.error) {
         setError(result.error);
+        toast.error(result.error, { id: t });
         setLoading(false);
         return;
       }
 
+      toast.success("Record saved successfully!", { id: t });
       // Centralized success behavior
       router.push(cancelHref);
       router.refresh();
     } catch (err: any) {
       console.error("Form submission error:", err);
-      setError(err.message || "An error occurred while saving.");
+      const msg = err.message || "An error occurred while saving.";
+      setError(msg);
+      toast.error(msg, { id: t });
       setLoading(false);
     }
   };
@@ -78,6 +117,54 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
       ['link', 'clean']
     ],
   }), []);
+
+  // Safe date formatter to prevent component crash
+  const formatDateTimeLocal = (dateInput: any) => {
+    if (!dateInput) return "";
+    try {
+      const date = new Date(dateInput);
+      if (isNaN(date.getTime())) return "";
+      return date.toISOString().slice(0, 16);
+    } catch (e) {
+      return "";
+    }
+  };
+
+  // Conditional field visibility logic
+  const isFieldVisible = (field: Field) => {
+    const category = formData.category;
+
+    // Always visible fields
+    if (['title', 'slug', 'category', 'published', 'content', 'excerpt', 'image'].includes(field.name)) return true;
+
+    // Category specific fields
+    if (category === 'event') {
+      return ['eventDate', 'location'].includes(field.name);
+    }
+    if (category === 'career') {
+      return ['jobType', 'location'].includes(field.name);
+    }
+    if (category === 'award') {
+      return ['authorName'].includes(field.name);
+    }
+    if (category === 'research') {
+      return ['authorName', 'readingTime'].includes(field.name);
+    }
+    if (category === 'article') {
+      return ['authorName', 'readingTime', 'keyTakeaways'].includes(field.name);
+    }
+
+    return true; // Default to visible if not specifically handled
+  };
+
+  // Category specific labels
+  const getFieldLabel = (field: Field) => {
+    if (field.name === 'authorName') {
+      if (formData.category === 'award') return "Recipient Name";
+      if (formData.category === 'research') return "Principal Researcher";
+    }
+    return field.label;
+  };
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -100,107 +187,32 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-            {fields.map((field) => (
+            {fields.filter(isFieldVisible).map((field) => (
               <div key={field.name} className={(field.type === "textarea" || field.type === "richtext") ? "md:col-span-2" : ""}>
                 <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-[0.2em] mb-3 ml-1">
-                  {field.label} {field.required && <span className="text-red-500">*</span>}
+                  {getFieldLabel(field)} {field.required && <span className="text-red-500">*</span>}
                 </label>
-                
-                {field.type === "richtext" ? (
-                  <div className="prose-editor min-h-[300px] border border-gray-200 rounded-2xl overflow-hidden bg-white">
-                    <ReactQuill
-                      theme="snow"
-                      value={formData[field.name] || ""}
-                      onChange={(val) => handleChange(field.name, val)}
-                      modules={quillModules}
-                      className="h-full"
-                    />
-                  </div>
-                ) : field.type === "textarea" ? (
-                  <textarea
+
+                ) : field.type === "select" ? (
+                  <select
                     value={formData[field.name] || ""}
                     onChange={(e) => handleChange(field.name, e.target.value)}
-                    placeholder={field.placeholder}
-                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all min-h-[160px] leading-relaxed"
+                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all appearance-none disabled:opacity-70 disabled:cursor-not-allowed"
                     required={field.required}
-                  />
-                ) : field.type === "datetime" ? (
-                  <div className="relative">
-                    <input
-                      type="datetime-local"
-                      value={formData[field.name] ? new Date(formData[field.name]).toISOString().slice(0, 16) : ""}
-                      onChange={(e) => handleChange(field.name, e.target.value)}
-                      className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 pr-12 text-gray-900 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all"
-                      required={field.required}
-                    />
-                    <Calendar className="absolute right-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                  </div>
-                ) : field.type === "emoji" ? (
-                  <div className="relative">
-                    <div className="flex gap-2">
-                       <button
-                        type="button"
-                        onClick={() => setActiveEmojiPicker(activeEmojiPicker === field.name ? null : field.name)}
-                        className="w-16 h-14 bg-gray-50 border border-gray-200 rounded-2xl flex items-center justify-center text-2xl hover:bg-gray-100 transition-colors"
-                      >
-                        {formData[field.name] || <Smile className="h-6 w-6 text-gray-400" />}
-                      </button>
-                      <input
-                        type="text"
-                        value={formData[field.name] || ""}
-                        readOnly
-                        placeholder="Pick an emoji..."
-                        className="flex-1 bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 focus:outline-none"
-                      />
-                    </div>
-                    {activeEmojiPicker === field.name && (
-                      <div className="absolute z-50 mt-2 left-0 shadow-2xl border border-gray-100 rounded-2xl">
-                        <EmojiPicker 
-                          onEmojiClick={(emojiData) => {
-                            handleChange(field.name, emojiData.emoji);
-                            setActiveEmojiPicker(null);
-                          }}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ) : field.type === "image" ? (
-                  <div className="bg-gray-50/50 border border-gray-200 rounded-2xl p-6">
-                    <div className="flex items-center gap-6">
-                      <div className="w-20 h-20 rounded-xl bg-white border border-gray-200 flex items-center justify-center overflow-hidden shadow-sm">
-                        {formData[field.name] ? (
-                          <img 
-                            src={typeof formData[field.name] === 'string' ? formData[field.name] : URL.createObjectURL(formData[field.name])} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover" 
-                          />
-                        ) : (
-                          <div className="text-gray-300 text-[10px] font-bold uppercase">Logo</div>
-                        )}
-                      </div>
-                      <div className="flex-1">
-                        <label className="relative cursor-pointer bg-white border border-gray-200 px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition-colors shadow-sm inline-block">
-                          Upload File
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            className="hidden"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleChange(field.name, file);
-                            }}
-                          />
-                        </label>
-                        <p className="text-[10px] text-gray-400 mt-2 italic">Supports JPG, PNG, WEBP</p>
-                      </div>
-                    </div>
-                  </div>
+                    disabled={field.readOnly}
+                  >
+                    <option value="" disabled>Select an option</option>
+                    {field.options?.map(opt => (
+                      <option key={opt.value} value={opt.value}>{opt.label}</option>
+                    ))}
+                  </select>
                 ) : field.type === "boolean" ? (
                   <div className="flex items-center gap-4 py-2 px-1">
                     <button
                       type="button"
+                      disabled={field.readOnly}
                       onClick={() => handleChange(field.name, !formData[field.name])}
-                      className={`relative w-12 h-7 rounded-full transition-colors duration-300 ${formData[field.name] ? 'bg-gold' : 'bg-gray-300'}`}
+                      className={`relative w-12 h-7 rounded-full transition-colors duration-300 ${formData[field.name] ? 'bg-gold' : 'bg-gray-300'} ${field.readOnly ? 'opacity-70 cursor-not-allowed' : ''}`}
                     >
                       <div className={`absolute top-1 left-1 w-5 h-5 bg-white rounded-full transition-transform duration-300 ${formData[field.name] ? 'translate-x-5' : 'translate-x-0'} shadow-md`} />
                     </button>
@@ -212,8 +224,10 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
                     value={formData[field.name] || ""}
                     onChange={(e) => handleChange(field.name, e.target.value)}
                     placeholder={field.placeholder}
-                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all"
+                    className="w-full bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gold focus:ring-4 focus:ring-gold/5 focus:bg-white transition-all disabled:opacity-70 disabled:cursor-not-allowed"
                     required={field.required}
+                    readOnly={field.readOnly}
+                    disabled={field.readOnly && field.name === 'category'} // Only disable if it's the category to prevent selection, but keep value
                   />
                 )}
               </div>
@@ -221,7 +235,7 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
           </div>
 
           <div className="pt-8 flex items-center justify-end gap-6 border-t border-gray-100">
-            <Link 
+            <Link
               href={cancelHref}
               className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-400 hover:text-red-500 transition-colors"
             >
@@ -243,7 +257,7 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
           </div>
         </form>
       </div>
-      
+
       <style jsx global>{`
         .ql-container.ql-snow {
           border: none !important;
@@ -267,4 +281,3 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
     </div>
   );
 }
-

@@ -14,8 +14,7 @@ export function EditPracticeAreaForm({ initialData }: { initialData: any }) {
   ];
 
   const handleSubmit = async (data: any) => {
-    data.append('id', initialData.id);
-    await upsertPracticeArea(data);
+    return await upsertPracticeArea(data);
   };
 
   return (

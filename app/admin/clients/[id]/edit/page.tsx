@@ -8,7 +8,7 @@ export default async function EditClientPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   
   const client = await prisma.client.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!client) {

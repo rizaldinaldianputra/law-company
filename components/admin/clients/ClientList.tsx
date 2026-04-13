@@ -46,7 +46,7 @@ export function ClientList({ initialData }: ClientListProps) {
 
   const handleDelete = async (id: string | number) => {
     try {
-      await deleteClient(id.toString());
+      await deleteClient(Number(id));
       router.refresh();
     } catch (err: any) {
       alert(err.message || "Failed to delete client record.");

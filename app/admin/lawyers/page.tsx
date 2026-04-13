@@ -10,11 +10,12 @@ export default async function AdminLawyersPage() {
 
   return (
     <div>
-      <AdminPageHeader 
-        title="Lawyers" 
+      <AdminPageHeader
+        title="Lawyers"
         description="Manage your professional legal team profiles."
         actionLabel="Add New Lawyer"
         actionHref="/admin/lawyers/new"
+
       />
 
       <LawyerList initialData={lawyers} />

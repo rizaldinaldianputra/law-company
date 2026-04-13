@@ -11,6 +11,7 @@ export function EditArticleForm({ initialData }: { initialData: any }) {
       label: "Category",
       type: "select" as const,
       required: true,
+      readOnly: true,
       options: [
         { label: "General Article", value: "article" },
         { label: "Award & Achievement", value: "award" },
@@ -20,8 +21,22 @@ export function EditArticleForm({ initialData }: { initialData: any }) {
       ]
     },
     { name: "title", label: "Title", type: "text" as const, required: true },
+    { name: "slug", label: "Custom Slug", type: "text" as const, placeholder: "leave-empty-for-auto-generate" },
+    { name: "eventDate", label: "Event Date", type: "datetime" as const },
+    { name: "location", label: "Location", type: "text" as const },
+    {
+      name: "jobType",
+      label: "Job Type",
+      type: "select" as const,
+      options: [
+        { label: "Full-Time", value: "Full-Time" },
+        { label: "Part-Time", value: "Part-Time" },
+        { label: "Internship", value: "Internship" },
+        { label: "Contract", value: "Contract" },
+      ]
+    },
     { name: "image", label: "Featured Image", type: "image" as const },
-    { name: "authorName", label: "Author Name", type: "text" as const },
+    { name: "authorName", label: "Author/Recipient Name", type: "text" as const },
     { name: "readingTime", label: "Estimated Reading Time", type: "text" as const },
     { name: "excerpt", label: "Excerpt / Summary", type: "textarea" as const, required: true },
     { name: "keyTakeaways", label: "Key Takeaways (Bullet points)", type: "textarea" as const },
@@ -30,8 +45,7 @@ export function EditArticleForm({ initialData }: { initialData: any }) {
   ];
 
   const handleSubmit = async (data: any) => {
-    data.append('id', initialData.id);
-    await upsertArticle(data);
+    return await upsertArticle(data);
   };
 
   return (

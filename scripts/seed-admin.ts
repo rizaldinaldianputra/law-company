@@ -13,6 +13,7 @@ async function main() {
       create: {
         email,
         name: 'Super Admin',
+        password: 'admin'
       },
     })
     

@@ -4,9 +4,11 @@ import { AdminTable } from "@/components/admin/AdminTable";
 import { deleteArticle } from "@/app/admin/actions";
 import { useRouter } from "next/navigation";
 import { FileText, Award, Calendar, BookOpen, Briefcase } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface ArticleListProps {
   initialData: any[];
+  basePath?: string;
 }
 
 const categoryIcons: Record<string, any> = {
@@ -17,10 +19,25 @@ const categoryIcons: Record<string, any> = {
   career: Briefcase,
 };
 
-export function ArticleList({ initialData }: ArticleListProps) {
+export function ArticleList({ initialData, basePath = "/admin/articles" }: ArticleListProps) {
   const router = useRouter();
 
   const columns = [
+    {
+      header: "Media",
+      accessor: "image",
+      render: (row: any) => (
+        <div className="w-12 h-12 rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex-shrink-0">
+          {row.image ? (
+            <img src={row.image} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <FileText className="h-5 w-5" />
+            </div>
+          )}
+        </div>
+      )
+    },
     {
       header: "Category",
       accessor: "category",
@@ -64,19 +81,21 @@ export function ArticleList({ initialData }: ArticleListProps) {
   ];
 
   const handleDelete = async (id: string | number) => {
+    const t = toast.loading("Deleting record...");
     try {
-      await deleteArticle(id.toString());
+      await deleteArticle(Number(id));
+      toast.success("Deleted successfully!", { id: t });
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Failed to delete article.");
+      toast.error(err.message || "Failed to delete article.", { id: t });
     }
   };
 
   return (
-    <AdminTable 
-      columns={columns} 
-      data={initialData} 
-      editPath="/admin/articles"
+    <AdminTable
+      columns={columns}
+      data={initialData}
+      editPath={basePath}
       viewPath="/news"
       onDelete={handleDelete}
     />

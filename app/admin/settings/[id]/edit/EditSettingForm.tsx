@@ -11,8 +11,7 @@ export function EditSettingForm({ initialData }: { initialData: any }) {
   ];
 
   const handleSubmit = async (data: any) => {
-    data.append('id', initialData.id);
-    await upsertSetting(data);
+    return await upsertSetting(data);
   };
 
   return (

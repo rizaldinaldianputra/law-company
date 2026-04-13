@@ -8,7 +8,7 @@ export default async function EditLawyerPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   
   const lawyer = await prisma.lawyer.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!lawyer) {

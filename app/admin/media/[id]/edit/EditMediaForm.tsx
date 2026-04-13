@@ -13,8 +13,7 @@ export function EditMediaForm({ initialData }: { initialData: any }) {
   ];
 
   const handleSubmit = async (data: any) => {
-    data.append('id', initialData.id);
-    await upsertMedia(data);
+    return await upsertMedia(data);
   };
 
   return (

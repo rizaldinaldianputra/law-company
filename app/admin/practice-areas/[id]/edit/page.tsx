@@ -8,7 +8,7 @@ export default async function EditPracticeAreaPage({ params }: { params: Promise
   const { id } = await params;
   
   const area = await prisma.practiceArea.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!area) {

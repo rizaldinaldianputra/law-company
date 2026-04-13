@@ -8,7 +8,7 @@ export default async function EditMediaPage({ params }: { params: Promise<{ id: 
   const { id } = await params;
   
   const media = await prisma.media.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!media) {

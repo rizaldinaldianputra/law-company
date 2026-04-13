@@ -45,7 +45,7 @@ export function MediaList({ initialData }: MediaListProps) {
 
   const handleDelete = async (id: string | number) => {
     try {
-      await deleteMedia(id.toString());
+      await deleteMedia(Number(id));
       router.refresh();
     } catch (err: any) {
       alert(err.message || "Failed to delete media record.");

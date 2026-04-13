@@ -48,10 +48,10 @@ export default async function CareerPage() {
                   <h3 className="font-serif font-bold text-2xl text-[#111] mb-3 group-hover:text-maroon transition-colors duration-300">{item.title}</h3>
                   <div className="flex flex-wrap gap-6 text-[10px] font-bold uppercase tracking-[0.2em] text-gold">
                     <div className="flex items-center gap-2">
-                      <Briefcase className="h-4 w-4" /> Full-Time
+                      <Briefcase className="h-4 w-4" /> {item.jobType || "Full-Time"}
                     </div>
                     <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" /> Jakarta
+                      <MapPin className="h-4 w-4" /> {item.location || "Jakarta"}
                     </div>
                   </div>
                 </div>

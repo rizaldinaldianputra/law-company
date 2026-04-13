@@ -12,7 +12,6 @@ export function EditClientForm({ initialData }: { initialData: any }) {
   ];
 
   const handleSubmit = async (data: FormData) => {
-    data.append('id', initialData.id);
     return await upsertClient(data);
   };
 

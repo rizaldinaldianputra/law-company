@@ -3,12 +3,12 @@ import { Phone, Mail, MapPin, Clock, Globe, MessageCircle, ExternalLink, Send } 
 
 export function Footer() {
   return (
-    <footer className="relative bg-[#0A0A0A] text-gray-400 border-t border-white/5 overflow-hidden">
+    <footer className="relative bg-gray-soft text-slate-mid border-t border-gray-100 overflow-hidden">
 
-      {/* Glow Background */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
-        <div className="absolute w-[400px] h-[400px] bg-yellow-500 blur-[120px] top-[-100px] left-[-100px]" />
-        <div className="absolute w-[400px] h-[400px] bg-red-900 blur-[120px] bottom-[-100px] right-[-100px]" />
+      {/* Subtle Glow Background */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+        <div className="absolute w-[400px] h-[400px] bg-navy blur-[120px] top-[-100px] left-[-100px]" />
+        <div className="absolute w-[400px] h-[400px] bg-blue-900 blur-[120px] bottom-[-100px] right-[-100px]" />
       </div>
 
       <div className="relative container mx-auto px-6 py-16">
@@ -18,35 +18,17 @@ export function Footer() {
           <div className="space-y-6">
             <div>
               <div className="flex items-center gap-3 mb-4">
-                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-[#2A0E0E] to-[#0A0A0A] flex items-center justify-center 
-        shadow-lg shadow-black/40 overflow-hidden group-hover:scale-110 transition-all duration-500">
-
-                  {/* Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
-
-                  {/* Icon Scale */}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-7 h-7 text-yellow-500 group-hover:scale-110 transition duration-500"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={1.5}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M12 3v18m0-18l6 6m-6-6l-6 6M4 9h16M6 9l-2 6h4l-2-6zm12 0l-2 6h4l-2-6z"
-                    />
-                  </svg>
+                <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-white to-gray-50 flex items-center justify-center 
+        shadow-lg shadow-black/5 overflow-hidden border border-gray-100 font-serif font-bold text-navy">
+                  🏛️
                 </div>
                 <div>
-                  <div className="text-white font-semibold text-lg font-serif">Rizaldi & Associates</div>
-                  <div className="text-yellow-500 text-[10px] uppercase tracking-[0.3em]">Law Firm</div>
+                  <div className="text-navy font-semibold text-lg font-serif">Rizaldi & Associates</div>
+                  <div className="text-navy-light text-[10px] uppercase tracking-[0.3em]">Law Firm</div>
                 </div>
               </div>
 
-              <p className="text-sm text-gray-500 leading-relaxed">
+              <p className="text-sm text-slate-mid leading-relaxed">
                 Delivering strategic legal solutions with integrity, precision, and excellence since 1995.
               </p>
             </div>
@@ -57,8 +39,8 @@ export function Footer() {
                 <a
                   key={i}
                   href="#"
-                  className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center 
-                  text-gray-500 hover:text-yellow-500 hover:border-yellow-500 transition-all duration-300 hover:scale-110"
+                  className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center 
+                  text-slate-mid hover:text-navy hover:border-navy transition-all duration-300 hover:scale-110"
                 >
                   <Icon className="h-4 w-4" />
                 </a>
@@ -68,7 +50,7 @@ export function Footer() {
 
           {/* Our Firm */}
           <div>
-            <h4 className="text-white font-semibold mb-6 text-sm uppercase tracking-widest">Our Firm</h4>
+            <h4 className="text-navy font-semibold mb-6 text-sm uppercase tracking-widest">Our Firm</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/firm/about", label: "About Us" },
@@ -76,8 +58,8 @@ export function Footer() {
                 { href: "/firm/services", label: "Services" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="group flex items-center gap-2 text-gray-400 hover:text-yellow-500 transition">
-                    <span className="w-0 group-hover:w-2 h-px bg-yellow-500 transition-all"></span>
+                  <Link href={item.href} className="group flex items-center gap-2 text-slate-mid hover:text-navy transition">
+                    <span className="w-0 group-hover:w-2 h-px bg-navy transition-all"></span>
                     {item.label}
                   </Link>
                 </li>
@@ -87,7 +69,7 @@ export function Footer() {
 
           {/* News */}
           <div>
-            <h4 className="text-white font-semibold mb-6 text-sm uppercase tracking-widest">Insights</h4>
+            <h4 className="text-navy font-semibold mb-6 text-sm uppercase tracking-widest">Insights</h4>
             <ul className="space-y-3 text-sm">
               {[
                 { href: "/news/media", label: "Media Coverage" },
@@ -96,8 +78,8 @@ export function Footer() {
                 { href: "/news/events", label: "Events" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className="group flex items-center gap-2 text-gray-400 hover:text-yellow-500 transition">
-                    <span className="w-0 group-hover:w-2 h-px bg-yellow-500 transition-all"></span>
+                  <Link href={item.href} className="group flex items-center gap-2 text-slate-mid hover:text-navy transition">
+                    <span className="w-0 group-hover:w-2 h-px bg-navy transition-all"></span>
                     {item.label}
                   </Link>
                 </li>
@@ -108,43 +90,43 @@ export function Footer() {
           {/* Contact + Newsletter */}
           <div className="space-y-6">
             <div>
-              <h4 className="text-white font-semibold mb-6 text-sm uppercase tracking-widest">Contact</h4>
+              <h4 className="text-navy font-semibold mb-6 text-sm uppercase tracking-widest">Contact</h4>
 
               <ul className="space-y-4 text-sm">
                 <li className="flex items-start gap-3">
-                  <MapPin className="h-4 w-4 text-yellow-500 mt-0.5" />
-                  <span className="text-gray-500">
+                  <MapPin className="h-4 w-4 text-navy mt-0.5" />
+                  <span className="text-slate-mid">
                     Jl. Sudirman No. 123, Jakarta
                   </span>
                 </li>
 
                 <li className="flex items-center gap-3">
-                  <Phone className="h-4 w-4 text-yellow-500" />
-                  <a href="#" className="hover:text-yellow-500 transition">+62 21 123 456</a>
+                  <Phone className="h-4 w-4 text-navy" />
+                  <a href="#" className="hover:text-navy transition text-slate-mid">+62 21 123 456</a>
                 </li>
 
                 <li className="flex items-center gap-3">
-                  <Mail className="h-4 w-4 text-yellow-500" />
-                  <a href="#" className="hover:text-yellow-500 transition">contact@smithlaw.com</a>
+                  <Mail className="h-4 w-4 text-navy" />
+                  <a href="#" className="hover:text-navy transition text-slate-mid">contact@smithlaw.com</a>
                 </li>
 
                 <li className="flex items-center gap-3">
-                  <Clock className="h-4 w-4 text-yellow-500" />
-                  <span>Mon – Fri: 08:00 – 17:00</span>
+                  <Clock className="h-4 w-4 text-navy" />
+                  <span className="text-slate-mid">Mon – Fri: 08:00 – 17:00</span>
                 </li>
               </ul>
             </div>
 
             {/* Newsletter */}
             <div>
-              <p className="text-xs text-gray-500 mb-2">Subscribe for insights</p>
+              <p className="text-xs text-slate-mid mb-2">Subscribe for insights</p>
               <div className="flex">
                 <input
                   type="email"
                   placeholder="Your email"
-                  className="w-full px-3 py-2 text-sm bg-black border border-white/10 rounded-l-md focus:outline-none focus:border-yellow-500"
+                  className="w-full px-3 py-2 text-sm bg-white border border-gray-200 rounded-l-md focus:outline-none focus:border-navy"
                 />
-                <button className="px-4 bg-yellow-500 text-black rounded-r-md hover:bg-yellow-400 transition">
+                <button className="px-4 bg-navy text-white rounded-r-md hover:bg-navy-dark transition">
                   <Send className="w-4 h-4" />
                 </button>
               </div>
@@ -155,16 +137,16 @@ export function Footer() {
       </div>
 
       {/* Divider */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-yellow-500/30 to-transparent" />
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
 
       {/* Bottom */}
-      <div className="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
+      <div className="container mx-auto px-6 py-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-mid">
         <p>&copy; {new Date().getFullYear()} Rizaldi & Associates. All rights reserved.</p>
 
         <div className="flex gap-6">
-          <Link href="#" className="hover:text-yellow-500 transition">Privacy</Link>
-          <Link href="#" className="hover:text-yellow-500 transition">Terms</Link>
-          <Link href="#" className="hover:text-yellow-500 transition">Disclaimer</Link>
+          <Link href="#" className="hover:text-navy transition">Privacy</Link>
+          <Link href="#" className="hover:text-navy transition">Terms</Link>
+          <Link href="#" className="hover:text-navy transition">Disclaimer</Link>
         </div>
       </div>
     </footer>

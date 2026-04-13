@@ -3,6 +3,7 @@
 import { AdminTable } from "@/components/admin/AdminTable";
 import { deleteLawyer } from "@/app/admin/actions";
 import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface LawyerListProps {
   initialData: any[];
@@ -35,26 +36,28 @@ export function LawyerList({ initialData }: LawyerListProps) {
     },
     { header: "Email", accessor: "email" },
     { header: "Phone", accessor: "phone" },
-    { 
-      header: "Added", 
+    {
+      header: "Added",
       accessor: "createdAt",
       render: (row: any) => new Date(row.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
     }
   ];
 
   const handleDelete = async (id: string | number) => {
+    const t = toast.loading("Deleting profile...");
     try {
-      await deleteLawyer(id.toString());
+      await deleteLawyer(Number(id));
+      toast.success("Deleted successfully!", { id: t });
       router.refresh();
     } catch (err: any) {
-      alert(err.message || "Failed to delete lawyer profile.");
+      toast.error(err.message || "Failed to delete lawyer profile.", { id: t });
     }
   };
 
   return (
-    <AdminTable 
-      columns={columns} 
-      data={initialData} 
+    <AdminTable
+      columns={columns}
+      data={initialData}
       editPath="/admin/lawyers"
       viewPath="/lawyers"
       onDelete={handleDelete}

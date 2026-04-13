@@ -3,23 +3,28 @@ import { PrismaPg } from "@prisma/adapter-pg"
 import pg from "pg"
 
 const prismaClientSingleton = () => {
-  const connectionString = process.env.DATABASE_URL;
+  // Manually construct the URL to bypass .env interpolation issues
+  const user = process.env.DB_USERNAME;
+  const password = process.env.DB_PASSWORD;
+  const host = process.env.DB_HOST || 'localhost';
+  const port = process.env.DB_PORT || '5432';
+  const db = process.env.DB_NAME;
+
+  const connectionString = `postgresql://${user}:${password}@${host}:${port}/${db}`;
   
-  if (!connectionString) {
-    console.error("CRITICAL: DATABASE_URL is not defined. Prisma cannot connect to the database.");
-    // In production, we'll let it throw so the developer sees the crash in logs, 
-    // but in development we want to avoid breaking the build if possible.
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("Missing DATABASE_URL environment variable.");
-    }
+  // If we have an adapter, use it, but if user/db are missing, 
+  // we are likely in an environment where we should use the URL directly
+  if (!user || !db) {
+    return new PrismaClient();
   }
 
   const pool = new pg.Pool({ 
     connectionString,
-    ssl: {
-      rejectUnauthorized: false, // Required for many managed database providers like Supabase
-    }
+    ssl: connectionString.includes('supabase.com') 
+      ? { rejectUnauthorized: false } 
+      : false
   })
+  
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }
@@ -28,30 +33,6 @@ declare global {
   var prisma: undefined | ReturnType<typeof prismaClientSingleton>
 }
 
-let prismaInstance: ReturnType<typeof prismaClientSingleton> | undefined
+export const prisma = globalThis.prisma ?? prismaClientSingleton()
 
-export const getPrisma = (): ReturnType<typeof prismaClientSingleton> => {
-  if (prismaInstance) return prismaInstance
-
-  if (globalThis.prisma) {
-    prismaInstance = globalThis.prisma
-    return prismaInstance
-  }
-
-  prismaInstance = prismaClientSingleton()
-
-  if (process.env.NODE_ENV !== "production") {
-    globalThis.prisma = prismaInstance
-  }
-
-  return prismaInstance
-}
-
-// Keep a default export or named export for existing code, but use a proxy or wrapper
-export const prisma = new Proxy({} as PrismaClient, {
-  get: (target, prop) => {
-    const instance = getPrisma()
-    return (instance as any)[prop]
-  }
-})
-
+if (process.env.NODE_ENV !== "production") globalThis.prisma = prisma

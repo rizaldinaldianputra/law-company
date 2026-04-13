@@ -8,7 +8,7 @@ export default async function EditSettingPage({ params }: { params: Promise<{ id
   const { id } = await params;
 
   const setting = await prisma.setting.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!setting) {

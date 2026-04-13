@@ -46,13 +46,13 @@ export default async function EventsPage() {
               {/* Date Block */}
               <div className="text-center md:border-r border-gray-100 pr-12 w-full">
                 <div className="text-maroon font-serif font-bold text-6xl mb-2 group-hover:scale-110 transition-transform duration-500">
-                  {new Date(item.createdAt).getDate()}
+                  {item.eventDate ? new Date(item.eventDate).getDate() : new Date(item.createdAt).getDate()}
                 </div>
                 <div className="text-gold font-bold text-[10px] uppercase tracking-[0.4em] mb-1">
-                  {new Date(item.createdAt).toLocaleDateString("en-US", { month: "long" })}
+                  {item.eventDate ? new Date(item.eventDate).toLocaleDateString("en-US", { month: "long" }) : new Date(item.createdAt).toLocaleDateString("en-US", { month: "long" })}
                 </div>
                 <div className="text-gray-400 text-[10px] font-bold uppercase tracking-widest opacity-60">
-                  {new Date(item.createdAt).getFullYear()}
+                  {item.eventDate ? new Date(item.eventDate).getFullYear() : new Date(item.createdAt).getFullYear()}
                 </div>
               </div>
 
@@ -68,7 +68,7 @@ export default async function EventsPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <MapPin className="h-4 w-4 text-gold opacity-60" /> 
-                    Jakarta Corporate Office
+                    {item.location || "Jakarta Corporate Office"}
                   </div>
                 </div>
                 <p className="text-gray-500 text-sm italic leading-relaxed line-clamp-2 opacity-80">{item.excerpt}</p>

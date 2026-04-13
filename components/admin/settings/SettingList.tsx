@@ -39,7 +39,7 @@ export function SettingList({ initialData }: SettingListProps) {
 
   const handleDelete = async (id: string | number) => {
     try {
-      await deleteSetting(id.toString());
+      await deleteSetting(Number(id));
       router.refresh();
     } catch (err: any) {
       alert(err.message || "Failed to delete setting.");

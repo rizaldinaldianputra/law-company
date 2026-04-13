@@ -8,7 +8,7 @@ export default async function EditArticlePage({ params }: { params: Promise<{ id
   const { id } = await params;
   
   const article = await prisma.article.findUnique({
-    where: { id }
+    where: { id: Number(id) }
   });
 
   if (!article) {

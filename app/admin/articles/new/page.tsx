@@ -14,6 +14,7 @@ export default function NewArticlePage() {
       label: "Category", 
       type: "select" as const, 
       required: true,
+      readOnly: true,
       options: [
         { label: "General Article", value: "article" },
         { label: "Award & Achievement", value: "award" },
@@ -27,9 +28,17 @@ export default function NewArticlePage() {
     { name: "image", label: "Featured Image", type: "image" as const },
     { name: "authorName", label: "Author Name", type: "text" as const, placeholder: "e.g. Senior Partner Name" },
     { name: "readingTime", label: "Estimated Reading Time", type: "text" as const, placeholder: "e.g. 5 min read" },
+    { name: "eventDate", label: "Event Date & Time", type: "datetime" as const },
+    { name: "location", label: "Location / Venue", type: "text" as const, placeholder: "e.g. Jakarta, Main Hall" },
+    { name: "jobType", label: "Job Type", type: "select" as const, options: [
+      { label: "Full-Time", value: "Full-Time" },
+      { label: "Part-Time", value: "Part-Time" },
+      { label: "Internship", value: "Internship" },
+      { label: "Contract", value: "Contract" },
+    ]},
     { name: "excerpt", label: "Excerpt / Summary", type: "textarea" as const, required: true, placeholder: "Brief overview for cards..." },
     { name: "keyTakeaways", label: "Key Takeaways (Bullet points)", type: "textarea" as const, placeholder: "Major points to highlight..." },
-    { name: "content", label: "Main Content (Markdown/HTML Supported)", type: "textarea" as const, required: true, placeholder: "Detailed content goes here..." },
+    { name: "content", label: "Main Content", type: "richtext" as const, required: true, placeholder: "Detailed content goes here..." },
     { name: "published", label: "Publication Status", type: "boolean" as const },
   ];
 
