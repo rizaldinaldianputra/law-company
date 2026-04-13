@@ -41,7 +41,7 @@ export default async function ResearchPage() {
             <Link
               href={`/news/research/${item.slug}`}
               key={item.id}
-              className="reveal block group flex flex-col items-center text-center p-12 bg-[#F7F6F4] border border-transparent hover:border-gold/30 rounded-[32px] transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/5"
+              className="reveal block group flex flex-col items-center text-center p-12 bg-white border border-maroon/5 shadow-maroon hover:shadow-maroon-hover rounded-[32px] transition-all duration-500 hover:-translate-y-2"
               style={{ transitionDelay: `${i * 0.1}s` }}
             >
               <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-maroon mb-10 group-hover:bg-maroon group-hover:text-white transition-all duration-500 group-hover:scale-110">

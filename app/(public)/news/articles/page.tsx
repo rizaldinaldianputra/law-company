@@ -50,7 +50,7 @@ export default async function NewsArticlesPage() {
             <Link
               href={`/news/articles/${item.slug}`}
               key={item.id}
-              className="reveal block bg-white border border-gray-100 rounded-2xl overflow-hidden group transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/5"
+              className="reveal block bg-white border border-maroon/5 rounded-3xl overflow-hidden group transition-all duration-500 hover:-translate-y-2 shadow-maroon hover:shadow-maroon-hover"
               style={{ transitionDelay: `${i * 0.1}s` }}
             >
               <div className="h-64 bg-[#F7F6F4] relative flex items-center justify-center overflow-hidden">

@@ -39,10 +39,10 @@ export default async function AwardsPage() {
           {awards.map((item, i) => (
             <div
               key={item.id}
-              className="reveal block bg-[#F7F6F4] border border-gray-100 rounded-3xl p-10 text-center transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-black/5"
+              className="reveal block bg-white border border-maroon/5 rounded-[32px] p-10 text-center transition-all duration-500 hover:-translate-y-2 shadow-maroon hover:shadow-maroon-hover group"
               style={{ transitionDelay: `${i * 0.1}s` }}
             >
-              <div className="w-16 h-16 bg-maroon rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl shadow-maroon/20 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+              <div className="w-16 h-16 bg-maroon rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-maroon group-hover:shadow-maroon-hover rotate-3 group-hover:rotate-0 transition-all duration-500">
                 <Trophy className="h-8 w-8 text-gold" />
               </div>
               <h3 className="font-serif font-bold text-2xl text-[#111] mb-6">

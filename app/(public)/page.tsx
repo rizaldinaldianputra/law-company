@@ -73,10 +73,10 @@ export default async function Home() {
               <Link
                 href={`/firm/services/${area.slug}`}
                 key={area.id}
-                className="reveal block bg-white rounded-2xl p-10 group transition-all duration-500 hover:-translate-y-2 hover:shadow-3xl hover:shadow-black/5 border border-gray-50 hover:border-maroon/10"
+                className="reveal block bg-white rounded-3xl p-10 group transition-all duration-500 hover:-translate-y-2 shadow-maroon hover:shadow-maroon-hover border border-maroon/5"
                 style={{ transitionDelay: `${i * 0.1}s` }}
               >
-                <div className="w-14 h-14 bg-maroon/5 rounded-xl flex items-center justify-center text-maroon mb-8 group-hover:bg-maroon group-hover:text-white transition-all duration-500 group-hover:scale-110">
+                <div className="w-14 h-14 bg-maroon/5 rounded-xl flex items-center justify-center text-maroon mb-8 group-hover:bg-maroon group-hover:text-white transition-all duration-500 group-hover:scale-110 shadow-sm group-hover:shadow-maroon/20">
                   <span className="text-3xl">{area.icon}</span>
                 </div>
                 <h3 className="font-serif font-bold text-2xl text-maroon mb-4 group-hover:text-maroon-light transition-colors duration-300">
@@ -93,7 +93,7 @@ export default async function Home() {
           </div>
 
           <div className="text-center mt-20 reveal transition-all duration-1000">
-            <Link href="/firm/services" className="bg-maroon text-white font-bold tracking-[0.2em] uppercase text-[12px] py-5 px-10 rounded-sm inline-flex items-center gap-3 transition-all duration-300 hover:bg-maroon-dark hover:-translate-y-1 hover:shadow-xl shadow-maroon/10">
+            <Link href="/firm/services" className="bg-maroon text-white font-bold tracking-[0.2em] uppercase text-[12px] py-5 px-10 rounded-sm inline-flex items-center gap-3 transition-all duration-300 hover:bg-maroon-dark hover:-translate-y-1 shadow-maroon-hover">
               View All Practice Areas <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
@@ -105,7 +105,7 @@ export default async function Home() {
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-20 items-center">
             <div className="reveal relative transition-all duration-1000">
-              <div className="aspect-square bg-gray-soft rounded-3xl overflow-hidden relative border border-maroon/5 shadow-3xl">
+              <div className="aspect-square bg-gray-soft rounded-[40px] overflow-hidden relative border border-maroon/5 shadow-maroon">
                 <div className="absolute inset-0 flex items-center justify-center text-[250px] opacity-[0.03]">🏛️</div>
                 <div className="absolute inset-0 bg-linear-to-t from-maroon/60 via-transparent to-transparent" />
                 <div className="absolute bottom-12 left-12 right-12 text-white">
@@ -114,7 +114,7 @@ export default async function Home() {
                 </div>
               </div>
               {/* Floating Stat */}
-              <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-2xl border border-gray-50 z-10 animate-float">
+              <div className="absolute -bottom-8 -right-8 bg-white p-8 rounded-2xl shadow-maroon-hover border border-gold/10 z-10 animate-float">
                 <div className="text-maroon font-serif font-bold text-4xl mb-1">98%</div>
                 <div className="text-slate-mid text-[10px] uppercase font-bold tracking-[0.3em]">Client Satisfaction</div>
               </div>
@@ -142,7 +142,7 @@ export default async function Home() {
                   ))}
                 </div>
               </div>
-              <Link href="/firm/about" className="group border-2 border-maroon text-maroon font-bold tracking-[0.2em] uppercase text-[12px] py-5 px-10 rounded-sm inline-flex items-center gap-3 transition-all duration-300 hover:bg-maroon hover:text-white hover:-translate-y-1 shadow-xl hover:shadow-maroon/10">
+              <Link href="/firm/about" className="group border-2 border-maroon text-maroon font-bold tracking-[0.2em] uppercase text-[12px] py-5 px-10 rounded-sm inline-flex items-center gap-3 transition-all duration-300 hover:bg-maroon hover:text-white hover:-translate-y-1 shadow-maroon hover:shadow-maroon-hover">
                 Our Full Story <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
               </Link>
             </div>
@@ -171,7 +171,7 @@ export default async function Home() {
                   className="reveal block group transition-all duration-500"
                   style={{ transitionDelay: `${i * 0.1}s` }}
                 >
-                  <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-8 relative shadow-xl">
+                  <div className="aspect-[3/4] rounded-3xl overflow-hidden mb-8 relative shadow-maroon group-hover:shadow-maroon-hover transition-all duration-500">
                     {lawyer.image ? (
                       <img src={lawyer.image} alt={lawyer.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                     ) : (
@@ -242,7 +242,7 @@ export default async function Home() {
                 <Link
                   href={`/news/articles/${article.slug}`}
                   key={article.id}
-                  className="reveal block bg-white rounded-2xl overflow-hidden border border-gray-100 group transition-all duration-500 hover:-translate-y-2 hover:shadow-3xl hover:shadow-black/5"
+                  className="reveal block bg-white rounded-3xl overflow-hidden border border-maroon/5 group transition-all duration-500 hover:-translate-y-2 shadow-maroon hover:shadow-maroon-hover"
                   style={{ transitionDelay: `${i * 0.1}s` }}
                 >
                   <div className="h-64 bg-gray-soft relative overflow-hidden">
@@ -277,7 +277,7 @@ export default async function Home() {
       {/* ─────────── CONTACT CTA ─────────── */}
       <section className="py-32 bg-white">
         <div className="container mx-auto px-6">
-          <div className="bg-gray-soft border border-gray-100 rounded-[40px] p-12 md:p-24 text-maroon relative overflow-hidden shadow-2xl reveal transition-all duration-1000">
+          <div className="bg-gray-soft border border-maroon/5 rounded-[40px] p-12 md:p-24 text-maroon relative overflow-hidden shadow-maroon reveal transition-all duration-1000">
             {/* Ambient pattern */}
             <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
               style={{
@@ -310,7 +310,7 @@ export default async function Home() {
                 </div>
               </div>
               <div className="flex flex-col gap-6 w-full lg:w-80">
-                <Link href="/contact" className="bg-maroon text-white font-bold tracking-[0.2em] uppercase text-[12px] py-6 rounded-sm flex items-center justify-center gap-3 transition-all duration-300 hover:bg-maroon-dark hover:-translate-y-1 shadow-2xl">
+                <Link href="/contact" className="bg-maroon text-white font-bold tracking-[0.2em] uppercase text-[12px] py-6 rounded-sm flex items-center justify-center gap-3 transition-all duration-300 hover:bg-maroon-dark hover:-translate-y-1 shadow-maroon-hover">
                   Consult With Us <ArrowRight className="h-4 w-4" />
                 </Link>
                 <div className="flex items-center justify-center gap-2 opacity-40 text-slate-mid">

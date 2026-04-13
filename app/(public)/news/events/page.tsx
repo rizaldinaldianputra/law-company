@@ -40,7 +40,7 @@ export default async function EventsPage() {
           {events.map((item, i) => (
             <div
               key={item.id}
-              className="reveal flex flex-col md:grid md:grid-cols-[180px_1fr_200px] items-center gap-12 bg-white border border-gray-100 rounded-[32px] p-10 hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group"
+              className="reveal flex flex-col md:grid md:grid-cols-[180px_1fr_200px] items-center gap-12 bg-white border border-maroon/5 rounded-[32px] p-10 shadow-maroon hover:shadow-maroon-hover transition-all duration-500 hover:-translate-y-1 group"
               style={{ transitionDelay: `${i * 0.1}s` }}
             >
               {/* Date Block */}

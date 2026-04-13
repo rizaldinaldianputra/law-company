@@ -41,6 +41,10 @@
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
   }
+  --shadow-maroon: 0 10px 40px -10px rgba(124, 29, 29, 0.15), 0 4px 12px -4px rgba(124, 29, 29, 0.1);
+  --shadow-maroon-hover: 0 25px 60px -15px rgba(124, 29, 29, 0.25), 0 10px 20px -8px rgba(124, 29, 29, 0.15);
+  --shadow-gold: 0 10px 40px -10px rgba(201, 168, 68, 0.15);
+  --shadow-gold-hover: 0 25px 60px -15px rgba(201, 168, 68, 0.25);
 }
 
 :root {

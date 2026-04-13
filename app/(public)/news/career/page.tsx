@@ -42,7 +42,7 @@ export default async function CareerPage() {
             {jobs.map((item, i) => (
               <div
                 key={item.id}
-                className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 p-10 bg-white border border-gray-100 rounded-2xl hover:border-maroon/20 hover:shadow-2xl transition-all duration-500"
+                className="group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8 p-10 bg-white border border-maroon/5 rounded-3xl shadow-maroon hover:shadow-maroon-hover hover:-translate-y-1 transition-all duration-500"
               >
                 <div>
                   <h3 className="font-serif font-bold text-2xl text-[#111] mb-3 group-hover:text-maroon transition-colors duration-300">{item.title}</h3>
@@ -62,7 +62,7 @@ export default async function CareerPage() {
             ))}
           </div>
 
-          <div className="reveal bg-black text-white p-16 rounded-[40px] relative overflow-hidden h-fit transition-all duration-1000" style={{ transitionDelay: "0.2s" }}>
+          <div className="reveal bg-black text-white p-16 rounded-[40px] relative overflow-hidden h-fit transition-all duration-1000 shadow-gold hover:shadow-gold-hover" style={{ transitionDelay: "0.2s" }}>
             <div className="absolute inset-0 opacity-10 pointer-events-none"
               style={{
                 backgroundImage: "radial-gradient(circle at 100% 0%, #C9A844 0%, transparent 60%)",
