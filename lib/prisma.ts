@@ -14,7 +14,12 @@ const prismaClientSingleton = () => {
     }
   }
 
-  const pool = new pg.Pool({ connectionString })
+  const pool = new pg.Pool({ 
+    connectionString,
+    ssl: {
+      rejectUnauthorized: false, // Required for many managed database providers like Supabase
+    }
+  })
   const adapter = new PrismaPg(pool)
   return new PrismaClient({ adapter })
 }
