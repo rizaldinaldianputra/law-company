@@ -16,10 +16,7 @@ const getSupabase = () => {
   if (supabaseInstance) return supabaseInstance
   
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    // Return a dummy proxy that avoids crashing during build-time static analysis
-    return new Proxy({} as any, {
-      get: () => () => ({ data: null, error: null }),
-    })
+    throw new Error("CRITICAL: Supabase keys are missing. Please ensure NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in the environment.");
   }
   
   supabaseInstance = createClient(supabaseUrl, supabaseServiceRoleKey)
