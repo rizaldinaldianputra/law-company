@@ -37,7 +37,7 @@ export async function loginAction(formData: FormData) {
       }
     } catch (prismaError: any) {
       console.error("Database connection failed in loginAction:", prismaError);
-      return { error: "Database connection failed. Please check if DATABASE_URL is correct on Vercel." };
+      return { error: `Database error: ${prismaError.message || "Unknown connection error"}` };
     }
 
     return { success: true };
