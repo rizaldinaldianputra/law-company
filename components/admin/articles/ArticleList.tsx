@@ -96,7 +96,7 @@ export function ArticleList({ initialData, basePath = "/admin/articles" }: Artic
       columns={columns}
       data={initialData}
       editPath={basePath}
-      viewPath="/news"
+      detailPath={basePath}
       onDelete={handleDelete}
     />
   );

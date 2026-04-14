@@ -1,5 +1,5 @@
 'use client';
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, FileText } from "lucide-react";
 import Link from "next/link";
 
 interface Column {
@@ -13,10 +13,11 @@ interface AdminTableProps {
   data: any[];
   onDelete?: (id: string | number) => void;
   editPath?: string; // /admin/lawyers
+  detailPath?: string; // /admin/articles
   viewPath?: string; // /lawyers
 }
 
-export function AdminTable({ columns, data, onDelete, editPath, viewPath }: AdminTableProps) {
+export function AdminTable({ columns, data, onDelete, editPath, detailPath, viewPath }: AdminTableProps) {
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
       <div className="overflow-x-auto">
@@ -48,6 +49,15 @@ export function AdminTable({ columns, data, onDelete, editPath, viewPath }: Admi
                 ))}
                 <td className="px-8 py-6 text-right">
                   <div className="flex justify-end items-center gap-3">
+                    {detailPath && (
+                      <Link 
+                        href={`${detailPath}/${row.id}`} 
+                        className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-black hover:bg-black/5 transition-all"
+                        title="View details"
+                      >
+                        <FileText className="h-4 w-4" />
+                      </Link>
+                    )}
                     {viewPath && (
                       <Link 
                         href={`${viewPath}/${row.slug || row.id}`} 
@@ -69,7 +79,13 @@ export function AdminTable({ columns, data, onDelete, editPath, viewPath }: Admi
                     )}
                     {onDelete && (
                       <button 
-                        onClick={() => { if(confirm('Delete this record?')) onDelete(row.id) }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (window.confirm('Delete this record?')) {
+                            onDelete(row.id);
+                          }
+                        }}
                         className="p-2.5 rounded-xl bg-gray-50 text-gray-400 hover:text-red-500 hover:bg-red-500/5 transition-all"
                         title="Delete record"
                       >

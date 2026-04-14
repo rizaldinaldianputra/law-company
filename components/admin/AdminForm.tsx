@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from "react";
-import { Loader2, Save, X, Smile, Calendar } from "lucide-react";
+import { Loader2, Save, X, Smile, Calendar, Upload, Image as ImageIcon, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -59,6 +59,13 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
 
   const handleChange = (name: string, value: any) => {
     if (name === 'slug') setIsSlugTouched(true);
+    
+    // For file inputs, we don't want to just pass the event, we want the file
+    if (value instanceof FileList) {
+      setFormData((prev: any) => ({ ...prev, [name]: value[0] }));
+      return;
+    }
+    
     setFormData((prev: any) => ({ ...prev, [name]: value }));
   };
 
@@ -237,7 +244,7 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
                     </button>
                     <span className="text-[12px] font-bold text-gray-600 uppercase tracking-tighter">{formData[field.name] ? 'Active' : 'Inactive'}</span>
                   </div>
-                ) : field.type === "datetime" ? (
+                                ) : field.type === "datetime" ? (
                   <input
                     type="datetime-local"
                     value={formatDateTimeLocal(formData[field.name])}
@@ -246,6 +253,92 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
                     required={field.required}
                     readOnly={field.readOnly}
                   />
+                ) : field.type === "image" ? (
+                  <div className="space-y-4">
+                    <div className="relative group aspect-video bg-gray-50 border-2 border-dashed border-gray-200 rounded-3xl overflow-hidden hover:border-gold/50 transition-colors flex flex-col items-center justify-center">
+                      {formData[field.name] ? (
+                        <>
+                          <img 
+                            src={typeof formData[field.name] === 'string' ? formData[field.name] : URL.createObjectURL(formData[field.name])} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.getElementById(`file-${field.name}`);
+                                input?.click();
+                              }}
+                              className="p-3 bg-white rounded-full text-gray-900 hover:bg-gold transition-colors shadow-xl"
+                            >
+                              <Upload size={20} />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleChange(field.name, null)}
+                              className="p-3 bg-white rounded-full text-red-500 hover:bg-red-50 transition-colors shadow-xl"
+                            >
+                              <Trash2 size={20} />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const input = document.getElementById(`file-${field.name}`);
+                            input?.click();
+                          }}
+                          className="flex flex-col items-center gap-3 text-gray-400 hover:text-gold transition-colors"
+                        >
+                          <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center group-hover:bg-gold/10 transition-colors">
+                            <ImageIcon size={32} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-widest">Select Image</span>
+                        </button>
+                      )}
+                      <input 
+                        id={`file-${field.name}`}
+                        type="file" 
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files) handleChange(field.name, e.target.files);
+                        }}
+                      />
+                    </div>
+                    <p className="text-[10px] text-gray-400 text-center font-medium italic">Supports JPG, PNG, WEBP (Max 5MB)</p>
+                  </div>
+                ) : field.type === "emoji" ? (
+                   <div className="relative">
+                     <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveEmojiPicker(activeEmojiPicker === field.name ? null : field.name)}
+                          className="w-16 h-16 rounded-2xl border border-gray-200 bg-gray-50 flex items-center justify-center text-3xl hover:border-gold hover:bg-white transition-all shadow-sm"
+                        >
+                          {formData[field.name] || '✨'}
+                        </button>
+                        <input
+                          type="text"
+                          value={formData[field.name] || ""}
+                          onChange={(e) => handleChange(field.name, e.target.value)}
+                          placeholder="Select or type emoji"
+                          className="flex-1 bg-gray-50/50 border border-gray-200 rounded-2xl py-4 px-5 text-gray-900 focus:outline-none focus:border-gold transition-all"
+                        />
+                     </div>
+                     {activeEmojiPicker === field.name && (
+                       <div className="absolute z-[100] top-full mt-4 left-0 shadow-2xl rounded-2xl overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-top-2">
+                         <EmojiPicker 
+                           onEmojiClick={(emojiData) => {
+                             handleChange(field.name, emojiData.emoji);
+                             setActiveEmojiPicker(null);
+                           }}
+                         />
+                       </div>
+                     )}
+                   </div>
                 ) : (
                   <input
                     type={field.type === "url" ? "url" : "text"}
