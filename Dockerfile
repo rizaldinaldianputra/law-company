@@ -18,6 +18,8 @@ COPY . .
 RUN npx prisma generate
 
 # Build the Next.js application
+# Provide a dummy DATABASE_URL to satisfy Prisma during the build phase
+ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
 RUN npm run build
 
 EXPOSE 3000

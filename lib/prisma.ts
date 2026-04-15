@@ -16,7 +16,13 @@ const prismaClientSingleton = () => {
   // If we lack the essential components for a connection string AND DATABASE_URL is missing,
   // return a standard client (which might still fail, but it's the best we can do)
   if (!process.env.DATABASE_URL && (!user || !db)) {
-    return new PrismaClient();
+    return new PrismaClient({
+      datasources: {
+        db: {
+          url: "postgresql://dummy:dummy@localhost:5432/dummy"
+        }
+      }
+    });
   }
 
   const pool = new pg.Pool({ 
