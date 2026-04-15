@@ -1,35 +1,23 @@
-FROM node:20-alpine AS base
+# ===== Base =====
+FROM node:18-alpine
 
-FROM base AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
-RUN npm ci
+# ===== Install deps =====
+COPY package*.json ./
+RUN npm install
 
-FROM base AS builder
-WORKDIR /app
-
-COPY --from=deps /app/node_modules ./node_modules
+# ===== Copy project =====
 COPY . .
 
+# ===== Prisma generate =====
 RUN npx prisma generate
+
+# ===== Build Next.js =====
 RUN npm run build
 
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
-
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next ./.next
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/prisma ./prisma
-
-USER nextjs
-
+# ===== Port =====
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma db push && npm start"]
+# ===== Start app =====
+CMD ["npm", "start"]
