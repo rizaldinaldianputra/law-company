@@ -1,4 +1,4 @@
-version: "3.8"
+# Removed obsolete version line
 
 services:
   app:
@@ -11,9 +11,15 @@ services:
       - "3011:3000"
 
     environment:
+      # Database components for specific logic
+      DB_USERNAME: rizaldi
+      DB_PASSWORD: "15031996"
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: lawfirm_db
       DATABASE_URL: postgresql://rizaldi:15031996@postgres:5432/lawfirm_db
       NEXTAUTH_URL: https://lawfirm.zelixa.my.id
-      NEXTAUTH_URL_INTERNAL: http://localhost:3000
+      NEXTAUTH_URL_INTERNAL: http://app:3000
       NEXTAUTH_SECRET: co-lawfirm-key-2026-v1
       NEXTAUTH_TRUST_HOST: "true"
       MINIO_ENDPOINT: storage.zelixa.my.id

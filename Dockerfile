@@ -1,23 +1,23 @@
-# ===== Base =====
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
 
-# ===== Install deps =====
+# Copy package files first
 COPY package*.json ./
-RUN npm install
 
-# ===== Copy project =====
+# Install dependencies without running postinstall scripts
+RUN npm ci --ignore-scripts
+
+# Copy the rest of the application
 COPY . .
 
-# ===== Prisma generate =====
+# Generate Prisma Client (more robust now with updated prisma.config.js)
 RUN npx prisma generate
 
-# ===== Build Next.js =====
+# Build the Next.js application
 RUN npm run build
 
-# ===== Port =====
 EXPOSE 3000
 
-# ===== Start app =====
-CMD ["npm", "start"]
+# Start the application
+CMD ["npm", "start"]

@@ -10,11 +10,12 @@ const prismaClientSingleton = () => {
   const port = process.env.DB_PORT || '5432';
   const db = process.env.DB_NAME;
 
-  const connectionString = `postgresql://${user}:${password}@${host}:${port}/${db}`;
+  // Use DATABASE_URL if available, otherwise construct it
+  const connectionString = process.env.DATABASE_URL || `postgresql://${user}:${password}@${host}:${port}/${db}`;
   
-  // If we have an adapter, use it, but if user/db are missing, 
-  // we are likely in an environment where we should use the URL directly
-  if (!user || !db) {
+  // If we lack the essential components for a connection string AND DATABASE_URL is missing,
+  // return a standard client (which might still fail, but it's the best we can do)
+  if (!process.env.DATABASE_URL && (!user || !db)) {
     return new PrismaClient();
   }
 

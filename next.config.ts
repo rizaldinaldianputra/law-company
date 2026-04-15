@@ -6,8 +6,14 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'http',
-        hostname: 'localhost',
-        port: '9000',
+        hostname: 'storage.zelixa.my.id',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'storage.zelixa.my.id',
+        port: '',
         pathname: '/**',
       },
     ],
