@@ -13,23 +13,9 @@ const prismaClientSingleton = () => {
   // Use DATABASE_URL if available, otherwise construct it
   const connectionString = process.env.DATABASE_URL || `postgresql://${user}:${password}@${host}:${port}/${db}`;
   
-  // If we lack the essential components for a connection string AND DATABASE_URL is missing,
-  // return a standard client (which might still fail, but it's the best we can do)
-  if (!process.env.DATABASE_URL && (!user || !db)) {
-    return new PrismaClient({
-      datasources: {
-        db: {
-          url: "postgresql://dummy:dummy@localhost:5432/dummy"
-        }
-      }
-    });
-  }
-
   const pool = new pg.Pool({ 
     connectionString,
-    ssl: connectionString.includes('supabase.com') 
-      ? { rejectUnauthorized: false } 
-      : false
+    ssl: false
   })
   
   const adapter = new PrismaPg(pool)

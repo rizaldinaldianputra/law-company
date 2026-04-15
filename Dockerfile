@@ -20,7 +20,7 @@ COPY . .
 RUN npx prisma generate
 
 # Build the Next.js application
-# Provide a dummy DATABASE_URL to satisfy build-time static checks
+# Provide DATABASE_URL for build-time requirements (e.g. Prisma client)
 ENV DATABASE_URL="postgresql://rizaldi:15031996@postgres:5432/lawfirm_db"
 RUN npm run build
 
