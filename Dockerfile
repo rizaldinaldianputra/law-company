@@ -1,28 +1,23 @@
-FROM node:22-alpine
+# ===== Base =====
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy package files
+# ===== Install deps =====
 COPY package*.json ./
-
-# Copy prisma schema before install to allow postinstall scripts to run
-COPY prisma ./prisma/
-
-# Install dependencies (will run prisma generate via postinstall)
 RUN npm install
 
-# Copy the rest of the application
+# ===== Copy project =====
 COPY . .
 
-# Generate Prisma Client again to ensure it's up to date with any copied changes
+# ===== Prisma generate =====
 RUN npx prisma generate
 
-# Build the Next.js application
-# Provide a dummy DATABASE_URL to satisfy Prisma during the build phase
-ENV DATABASE_URL="postgresql://dummy:dummy@localhost:5432/dummy"
+# ===== Build Next.js =====
 RUN npm run build
 
+# ===== Port =====
 EXPOSE 3000
 
-# Start the application
+# ===== Start app =====
 CMD ["npm", "start"]
