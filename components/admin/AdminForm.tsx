@@ -104,9 +104,13 @@ export function AdminForm({ fields, initialData, onSubmit, cancelHref, title }: 
       }
 
       toast.success("Record saved successfully!", { id: t });
-      // Centralized success behavior
-      router.push(cancelHref);
-      router.refresh();
+      
+      // Small timeout to allow the toast to be seen and for server actions (revalidatePath) to settle
+      setTimeout(() => {
+        router.push(cancelHref);
+        router.refresh(); // Refresh the target page to show new data
+      }, 500);
+      
     } catch (err: any) {
       console.error("Form submission error:", err);
       const msg = err.message || "An error occurred while saving.";

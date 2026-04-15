@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Image as ImageIcon, FileText, Trash2, Copy, Check, ExternalLink, Calendar, HardDrive } from 'lucide-react';
+import { Image as ImageIcon, FileText, Trash2, Copy, Check, ExternalLink, Calendar, HardDrive, Loader2 } from 'lucide-react';
+import { deleteMediaObject } from '@/app/admin/actions';
+import { toast } from 'react-hot-toast';
 
 interface MediaObject {
   name: string;
@@ -15,13 +17,35 @@ interface MediaLibraryProps {
 }
 
 export function MediaLibrary({ initialObjects }: MediaLibraryProps) {
-  const [objects] = useState<MediaObject[]>(initialObjects);
+  const [objects, setObjects] = useState<MediaObject[]>(initialObjects);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url);
     setCopiedUrl(url);
     setTimeout(() => setCopiedUrl(null), 2000);
+  };
+
+  const handleDelete = async (fileName: string) => {
+    if (!confirm('Are you sure you want to permanently delete this file? This cannot be undone.')) return;
+    
+    setDeleting(fileName);
+    const t = toast.loading('Deleting file...');
+    
+    try {
+      const result = await deleteMediaObject(fileName);
+      if (result.success) {
+        setObjects(prev => prev.filter(obj => obj.name !== fileName));
+        toast.success('File deleted successfully', { id: t });
+      } else {
+        toast.error(result.error || 'Failed to delete file', { id: t });
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting', { id: t });
+    } finally {
+      setDeleting(null);
+    }
   };
 
   const formatSize = (bytes: number) => {
@@ -89,6 +113,14 @@ export function MediaLibrary({ initialObjects }: MediaLibraryProps) {
                   >
                     <ExternalLink size={18} />
                   </a>
+                  <button
+                    onClick={() => handleDelete(obj.name)}
+                    disabled={deleting === obj.name}
+                    className="p-3 bg-white rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-all transform hover:scale-110 disabled:opacity-50"
+                    title="Delete File"
+                  >
+                    {deleting === obj.name ? <Loader2 size={18} className="animate-spin" /> : <Trash2 size={18} />}
+                  </button>
                 </div>
               </div>
 

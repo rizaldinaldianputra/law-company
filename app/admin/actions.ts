@@ -2,8 +2,9 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { prisma } from "@/lib/prisma";
-import { uploadFile, listAllObjects } from "@/lib/minio";
+import { uploadFile, listAllObjects, deleteFile } from "@/lib/minio";
 import slugify from 'slugify';
 
 export async function loginAction(formData: FormData) {
@@ -89,6 +90,22 @@ export async function upsertArticle(formData: FormData) {
     } else {
       await prisma.article.create({ data: data as any });
     }
+    
+    revalidatePath('/admin/articles');
+    
+    // Special handling for singular folder names
+    const pathMap: Record<string, string> = {
+      'article': 'articles',
+      'career': 'career',
+      'research': 'research',
+      'event': 'events',
+      'award': 'awards'
+    };
+    const path = pathMap[category] || `${category}s`;
+    revalidatePath(`/admin/${path}`);
+    
+    revalidatePath('/');
+    
     return { success: true };
   } catch (err: any) {
     return { error: err.message || "Failed to save article." };
@@ -96,8 +113,29 @@ export async function upsertArticle(formData: FormData) {
 }
 
 export async function deleteArticle(id: number) {
-  await prisma.article.delete({ where: { id: id as any } });
-  return { success: true };
+  try {
+    const article = await prisma.article.findUnique({ where: { id: id as any } });
+    if (!article) return { error: "Article not found" };
+
+    const category = article.category;
+    await prisma.article.delete({ where: { id: id as any } });
+
+    revalidatePath('/admin/articles');
+    const pathMap: Record<string, string> = {
+      'article': 'articles',
+      'career': 'career',
+      'research': 'research',
+      'event': 'events',
+      'award': 'awards'
+    };
+    const path = pathMap[category] || `${category}s`;
+    revalidatePath(`/admin/${path}`);
+    revalidatePath('/');
+
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || "Failed to delete item." };
+  }
 }
 
 // ─── LAWYER ACTIONS ───
@@ -144,6 +182,10 @@ export async function upsertLawyer(formData: FormData) {
     } else {
       await prisma.lawyer.create({ data: data as any });
     }
+    
+    revalidatePath('/admin/lawyers');
+    revalidatePath('/');
+    
     return { success: true };
   } catch (err: any) {
     return { error: err.message || "Failed to save lawyer." };
@@ -152,6 +194,7 @@ export async function upsertLawyer(formData: FormData) {
 
 export async function deleteLawyer(id: number) {
   await prisma.lawyer.delete({ where: { id: id as any } });
+  revalidatePath('/admin/lawyers');
   return { success: true };
 }
 
@@ -189,6 +232,10 @@ export async function upsertPracticeArea(formData: FormData) {
     } else {
       await prisma.practiceArea.create({ data: data as any });
     }
+    
+    revalidatePath('/admin/practice-areas');
+    revalidatePath('/');
+    
     return { success: true };
   } catch (err: any) {
     console.error("Save error:", err);
@@ -203,6 +250,7 @@ export async function deletePracticeArea(id: number) {
   try {
     console.log("Deleting record with ID:", id);
     await prisma.practiceArea.delete({ where: { id: id as any } });
+    revalidatePath('/admin/practice-areas');
     return { success: true };
   } catch (err: any) {
     console.error("Delete error:", err);
@@ -238,6 +286,10 @@ export async function upsertClient(formData: FormData) {
     } else {
       await prisma.client.create({ data: data as any });
     }
+    
+    revalidatePath('/admin/clients');
+    revalidatePath('/');
+    
     return { success: true };
   } catch (err: any) {
     return { error: err.message || "Failed to save client." };
@@ -246,6 +298,7 @@ export async function upsertClient(formData: FormData) {
 
 export async function deleteClient(id: number) {
   await prisma.client.delete({ where: { id: id as any } });
+  revalidatePath('/admin/clients');
   return { success: true };
 }
 
@@ -275,6 +328,7 @@ export async function upsertMedia(formData: FormData) {
     } else {
       await prisma.media.create({ data: data as any });
     }
+    revalidatePath('/admin/media');
     return { success: true };
   } catch (err: any) {
     return { error: err.message || "Failed to save media coverage." };
@@ -283,6 +337,7 @@ export async function upsertMedia(formData: FormData) {
 
 export async function deleteMedia(id: number) {
   await prisma.media.delete({ where: { id: id as any } });
+  revalidatePath('/admin/media');
   return { success: true };
 }
 
@@ -303,6 +358,7 @@ export async function upsertSetting(formData: FormData) {
     } else {
       await prisma.setting.create({ data: data as any });
     }
+    revalidatePath('/admin/settings');
     return { success: true };
   } catch (err: any) {
     return { error: err.message || "Failed to save setting." };
@@ -311,6 +367,7 @@ export async function upsertSetting(formData: FormData) {
 
 export async function deleteSetting(id: number) {
   await prisma.setting.delete({ where: { id: id as any } });
+  revalidatePath('/admin/settings');
   return { success: true };
 }
 
@@ -330,5 +387,15 @@ export async function getMediaObjects() {
     }))
   } catch (error) {
     return []
+  }
+}
+
+export async function deleteMediaObject(fileName: string) {
+  try {
+    await deleteFile(fileName);
+    revalidatePath('/admin/media-library');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || "Failed to delete file." };
   }
 }

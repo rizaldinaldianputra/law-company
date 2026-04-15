@@ -60,4 +60,8 @@ export async function uploadFile(file: File): Promise<string> {
   return `${baseUrl}/${BUCKET_NAME}/${fileName}`;
 }
 
+export async function deleteFile(fileName: string): Promise<void> {
+  await minioClient.removeObject(BUCKET_NAME, fileName);
+}
+
 export default minioClient;
